@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Watermark Studio</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14120F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#14120F;
+    --panel:#1D1A15;
+    --panel-2:#242019;
+    --hairline:#37322A;
+    --ivory:#F3ECDD;
+    --ivory-dim:#B8AF9E;
+    --gold:#C7A661;
+    --gold-soft:#8C7239;
+    --crimson:#9C2B3A;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, #221E17 0%, var(--void) 55%);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Inter',sans-serif;
+    color:var(--ivory);
+    padding:32px 12px;
+  }
+
+  .frame{
+    width:390px;
+    max-width:100%;
+    background:var(--panel);
+    border-radius:34px;
+    border:1px solid var(--hairline);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    padding:22px 22px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid var(--hairline);
+  }
+  .brand{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .brand .word{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:500;
+    letter-spacing:0.02em;
+  }
+  .brand .word em{
+    font-style:italic;
+    color:var(--gold);
+  }
+  .brand .sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ivory-dim);
+  }
+  .topbar .menu-dots{
+    display:flex;
+    gap:4px;
+    padding:8px;
+    cursor:pointer;
+  }
+  .menu-dots span{
+    width:4px;height:4px;border-radius:50%;
+    background:var(--ivory-dim);
+  }
+
+  /* ---------- Preview ---------- */
+  .preview-wrap{
+    padding:20px 20px 4px;
+  }
+  .preview{
+    position:relative;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--hairline);
+    aspect-ratio:4/5;
+  }
+  #wmCanvas{
+    width:100%;height:100%;
+    display:block;
+    background:#0F0D0B;
+    cursor:pointer;
+  }
+
+  .preview-caption{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 2px 0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    color:var(--ivory-dim);
+    letter-spacing:0.05em;
+  }
+  .preview-caption .dot{color:var(--gold);}
+
+  /* ---------- Section label ---------- */
+  .section-label{
+    padding:22px 22px 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .section-label .t{
+    font-family:'Fraunces',serif;
+    font-size:14px;
+    letter-spacing:0.02em;
+  }
+  .section-label .link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--gold);
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+
+  /* ---------- Template chips ---------- */
+  .templates{
+    display:flex;
+    gap:12px;
+    padding:2px 22px 6px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .templates::-webkit-scrollbar{display:none;}
+  .tchip{
+    flex-shrink:0;
+    width:64px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:7px;
+    cursor:pointer;
+  }
+  .tchip .swatch{
+    width:56px;height:56px;
+    border-radius:14px;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    color:var(--ivory-dim);
+    transition:.15s;
+  }
+  .tchip.active .swatch{
+    border-color:var(--gold);
+    color:var(--gold);
+    box-shadow:0 0 0 1px var(--gold), inset 0 0 14px rgba(199,166,97,0.12);
+  }
+  .tchip .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    letter-spacing:0.04em;
+    color:var(--ivory-dim);
+    text-transform:uppercase;
+  }
+  .tchip.active .label{color:var(--ivory);}
+  .tchip.add .swatch{
+    border-style:dashed;
+    font-size:20px;
+  }
+
+  /* ---------- Fields ---------- */
+  .fields{
+    padding:6px 22px 4px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .field-row{display:flex; gap:10px;}
+  .field{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--gold-soft);
+    margin-bottom:3px;
+  }
+  .field .val{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    color:var(--ivory);
+  }
+  .field .val.muted{color:var(--ivory-dim); font-weight:400;}
+  .field input, .field select{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    color:var(--ivory);
+    padding:0;
+  }
+  .quad .field input{text-align:center;}
+  .field select option{background:var(--panel-2); color:var(--ivory);}
+  .quad{display:flex; gap:8px;}
+  .quad .field{padding:9px 8px; text-align:center;}
+  .quad .field label{text-align:center;}
+
+  /* ---------- Toggles ---------- */
+  .toggles{
+    padding:14px 22px 6px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .toggle-row .t{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+  }
+  .toggle-row .d{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    color:var(--ivory-dim);
+    margin-top:1px;
+  }
+  .switch{
+    width:38px;height:22px;
+    border-radius:12px;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .switch::after{
+    content:'';
+    position:absolute;
+    top:2px; left:2px;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--ivory-dim);
+    transition:.15s;
+  }
+  .switch.on{background:rgba(199,166,97,0.18); border-color:var(--gold-soft);}
+  .switch.on::after{left:18px; background:var(--gold);}
+
+  /* ---------- CTA ---------- */
+  .cta-area{
+    padding:20px 22px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg, var(--gold) 0%, var(--gold-soft) 100%);
+    color:#1A1508;
+    border:none;
+    border-radius:12px;
+    padding:15px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.01em;
+    cursor:pointer;
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ivory);
+    border:1px solid var(--hairline);
+    border-radius:12px;
+    padding:14px;
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .bottomnav{
+    display:flex;
+    border-top:1px solid var(--hairline);
+    background:var(--panel);
+  }
+  .navitem{
+    flex:1;
+    padding:14px 0 18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    cursor:pointer;
+    color:var(--ivory-dim);
+  }
+  .navitem.active{color:var(--gold);}
+  .navitem svg{width:19px; height:19px;}
+  .navitem .lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+
+  .credit{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    color:#5c5648;
+    margin-top:16px;
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- Logo Picker Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,9,7,0.75);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-sheet{
+    width:390px; max-width:100%;
+    max-height:78vh;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:24px 24px 0 0;
+    padding:20px 22px 22px;
+    overflow-y:auto;
+  }
+  .modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .modal-head .t{font-family:'Fraunces',serif; font-size:18px;}
+  .modal-close{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--ivory-dim); cursor:pointer; letter-spacing:0.05em;
+  }
+  .logo-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+  .logo-tile{
+    aspect-ratio:1;
+    border-radius:14px;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    display:flex; align-items:center; justify-content:center;
+    background-size:60%; background-repeat:no-repeat; background-position:center;
+    cursor:pointer;
+    position:relative;
+  }
+  .logo-tile.selected{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold);}
+  .logo-tile .del{
+    position:absolute; top:3px; right:5px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--ivory-dim);
+  }
+  .logo-tile.add{
+    border-style:dashed;
+    font-family:'Fraunces',serif; font-size:22px;
+    color:var(--ivory-dim);
+  }
+  .logo-empty{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px;
+    color:var(--ivory-dim); text-align:center; padding:20px 0;
+  }
+</style>
+</head>
+<body>
+
+<div>
+<div class="frame">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="word">Atelier<em>.</em></div>
+      <div class="sub">Watermark Studio</div>
+    </div>
+    <div class="menu-dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" style="display:none">
+  <input type="file" id="logoInput" accept="image/*" style="display:none">
+
+  <div class="preview-wrap">
+    <div class="preview" id="previewBox">
+      <canvas id="wmCanvas"></canvas>
+    </div>
+    <div class="preview-caption">
+      <span>PRATINJAU <span class="dot">·</span> LIVE</span>
+      <span id="dimCaption">4:5</span>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <div class="t">Pilih Template</div>
+    <div class="link">Kelola</div>
+  </div>
+  <div class="templates" id="templateList">
+    <div class="tchip active" data-key="rosso" onclick="selectTemplate('rosso')">
+      <div class="swatch">A</div>
+      <div class="label">Rosso</div>
+    </div>
+    <div class="tchip" data-key="optik" onclick="selectTemplate('optik')">
+      <div class="swatch">◧</div>
+      <div class="label">Optik</div>
+    </div>
+    <div class="tchip" data-key="mono" onclick="selectTemplate('mono')">
+      <div class="swatch">M</div>
+      <div class="label">Mono</div>
+    </div>
+    <div class="tchip" data-key="cinema" onclick="selectTemplate('cinema')">
+      <div class="swatch">▭</div>
+      <div class="label">Cinema</div>
+    </div>
+    <div class="tchip" data-key="minimal" onclick="selectTemplate('minimal')">
+      <div class="swatch">—</div>
+      <div class="label">Minimal</div>
+    </div>
+    <div class="tchip" data-key="whitebar" onclick="selectTemplate('whitebar')">
+      <div class="swatch">▬</div>
+      <div class="label">White Bar</div>
+    </div>
+    <div class="tchip" id="chipCustom" data-key="custom" style="display:none" onclick="selectTemplate('custom')">
+      <div class="swatch" id="customSwatch">+</div>
+      <div class="label">Custom</div>
+    </div>
+    <div class="tchip add" onclick="openLogoPicker()">
+      <div class="swatch">+</div>
+      <div class="label">Logo</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="logoModal">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div class="t">Logo Picker</div>
+        <div class="modal-close" onclick="closeLogoPicker()">TUTUP</div>
+      </div>
+      <div class="logo-grid" id="logoGrid"></div>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <div class="t">Detail Perangkat</div>
+  </div>
+  <div class="fields">
+    <div class="field-row">
+      <div class="field">
+        <label>Nama Brand</label>
+        <input id="fBrand" type="text" value="Atelier" oninput="onFieldChange()">
+      </div>
+      <div class="field">
+        <label>Lens</label>
+        <input id="fLens" type="text" value="35mm f/1.8 Prime" oninput="onFieldChange()">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Nama Perangkat</label>
+        <input id="fDevice" type="text" value="Atelier Six" oninput="onFieldChange()">
+      </div>
+      <div class="field">
+        <label>Posisi</label>
+        <select id="fPosition" onchange="onFieldChange()">
+          <option value="bottom-left" selected>Bawah · Rata Kiri</option>
+          <option value="bottom-right">Bawah · Rata Kanan</option>
+          <option value="bottom-center">Bawah · Tengah</option>
+          <option value="top-left">Atas · Rata Kiri</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Lokasi (Opsional)</label>
+        <input id="fLocation" type="text" value="Jakarta, ID" oninput="onFieldChange()">
+      </div>
+    </div>
+    <div class="quad">
+      <div class="field"><label>mm</label><input id="fMM" type="text" value="35" oninput="onFieldChange()"></div>
+      <div class="field"><label>F</label><input id="fF" type="text" value="1.8" oninput="onFieldChange()"></div>
+      <div class="field"><label>S</label><input id="fS" type="text" value="1/250" oninput="onFieldChange()"></div>
+      <div class="field"><label>ISO</label><input id="fISO" type="text" value="100" oninput="onFieldChange()"></div>
+    </div>
+  </div>
+
+  <div class="toggles">
+    <div class="toggle-row">
+      <div>
+        <div class="t">Tampilkan Watermark</div>
+        <div class="d">Overlay merek &amp; parameter kamera</div>
+      </div>
+      <div class="switch on" id="swWatermark" onclick="toggleSwitch('swWatermark')"></div>
+    </div>
+    <div class="toggle-row">
+      <div>
+        <div class="t">Sertakan Lokasi &amp; Waktu</div>
+        <div class="d">Tanggal, jam, dan koordinat</div>
+      </div>
+      <div class="switch" id="swLocation" onclick="toggleSwitch('swLocation')"></div>
+    </div>
+  </div>
+
+  <div class="cta-area">
+    <button class="btn-primary" id="btnDownload" onclick="downloadResult()">Terapkan &amp; Unduh</button>
+    <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">Pilih Foto Lain</button>
+  </div>
+
+  <div class="bottomnav">
+    <div class="navitem active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <div class="lbl">Beranda</div>
+    </div>
+    <div class="navitem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></svg>
+      <div class="lbl">Editor</div>
+    </div>
+    <div class="navitem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.6-9.5-9.1C.6 8.4 2.3 5 5.7 5c1.9 0 3.3 1 4.3 2.4C11 6 12.4 5 14.3 5 17.7 5 19.4 8.4 21.5 11.9 19 16.4 12 21 12 21z"/></svg>
+      <div class="lbl">Favorit</div>
+    </div>
+    <div class="navitem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.2"/><path d="M4.5 20c1.4-3.6 4.3-5.4 7.5-5.4s6.1 1.8 7.5 5.4"/></svg>
+      <div class="lbl">Akun</div>
+    </div>
+  </div>
+
+</div>
+<div class="credit">TAHAP 7 — TEMPLATE MINIMAL CORNER</div>
+</div>
+
+<script>
+const state = {
+  template: 'rosso',
+  brand: 'Atelier',
+  lens: '35mm f/1.8 Prime',
+  location: 'Jakarta, ID',
+  device: 'Atelier Six',
+  mm: '35', f: '1.8', s: '1/250', iso: '100',
+  position: 'bottom-left',
+  showWatermark: true,
+  showLocation: false,
+  img: null,
+  logoImg: null,
+  logos: [],
+  selectedLogoId: null
+};
+
+const canvas = document.getElementById('wmCanvas');
+const ctx = canvas.getContext('2d');
+const box = document.getElementById('previewBox');
+
+function fitCanvas(){
+  const rect = box.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  render();
+}
+
+function drawPlaceholderScene(w,h){
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#3C4A52');
+  g.addColorStop(0.38,'#21282C');
+  g.addColorStop(0.70,'#171A16');
+  g.addColorStop(1,'#0F0D0B');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+
+  const sun = ctx.createRadialGradient(w*0.72,h*0.22,0,w*0.72,h*0.22,w*0.22);
+  sun.addColorStop(0,'rgba(231,200,120,0.9)');
+  sun.addColorStop(1,'rgba(231,200,120,0)');
+  ctx.fillStyle = sun;
+  ctx.fillRect(0,0,w,h);
+
+  ctx.fillStyle = 'rgba(23,26,22,0.9)';
+  ctx.beginPath();
+  ctx.moveTo(0,h); ctx.lineTo(w*0.15,h*0.567); ctx.lineTo(w*0.30,h*0.767);
+  ctx.lineTo(w*0.45,h*0.467); ctx.lineTo(w*0.60,h*0.70); ctx.lineTo(w*0.75,h*0.50);
+  ctx.lineTo(w*0.90,h*0.767); ctx.lineTo(w,h*0.633); ctx.lineTo(w,h); ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#0F0D0B';
+  ctx.beginPath();
+  ctx.moveTo(0,h); ctx.lineTo(w*0.225,h*0.70); ctx.lineTo(w*0.40,h*0.833);
+  ctx.lineTo(w*0.575,h*0.633); ctx.lineTo(w*0.75,h*0.80); ctx.lineTo(w,h*0.683); ctx.lineTo(w,h); ctx.closePath();
+  ctx.fill();
+}
+
+function drawPhoto(w,h){
+  const img = state.img;
+  const ir = img.width / img.height;
+  const br = w / h;
+  let sw, sh, sx, sy;
+  if (ir > br){ sh = img.height; sw = sh * br; sy = 0; sx = (img.width - sw)/2; }
+  else { sw = img.width; sh = sw / br; sx = 0; sy = (img.height - sh)/2; }
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+}
+
+function paramLine(){
+  let s = state.mm + 'mm · f/' + state.f + ' · ' + state.s + 's · ISO' + state.iso;
+  if (state.showLocation) s += ' · ' + new Date().toLocaleDateString('id-ID');
+  return s;
+}
+
+function anchorX(w,pad){
+  if (state.position.endsWith('right')) return w - pad;
+  if (state.position.endsWith('center')) return w/2;
+  return pad;
+}
+function textAlignFor(){
+  if (state.position.endsWith('right')) return 'right';
+  if (state.position.endsWith('center')) return 'center';
+  return 'left';
+}
+function stripY(h,pad){
+  return state.position.startsWith('top') ? pad : null;
+}
+
+function drawWatermark(w,h){
+  const pad = w*0.04;
+  const align = textAlignFor();
+  const top = state.position.startsWith('top');
+  ctx.textAlign = align;
+
+  if (state.template === 'whitebar'){
+    const barH = h*0.16;
+    ctx.fillStyle = '#F5F2EA';
+    ctx.fillRect(0, h-barH, w, barH);
+    ctx.strokeStyle = 'rgba(20,18,15,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,h-barH); ctx.lineTo(w,h-barH); ctx.stroke();
+
+    const cy = h - barH/2;
+    const padX = w*0.045;
+    const logoSize = barH*0.5;
+
+    // logo / initial kiri
+    if (state.logoImg){
+      ctx.drawImage(state.logoImg, padX, cy-logoSize/2, logoSize, logoSize);
+    } else {
+      ctx.fillStyle = '#14120F';
+      ctx.font = '600 ' + logoSize*0.75 + 'px Fraunces, serif';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(state.brand.charAt(0), padX, cy);
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.fillStyle = '#14120F';
+    ctx.font = '600 ' + (w*0.034) + 'px Fraunces, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(state.brand, padX+logoSize+w*0.025, cy-barH*0.08);
+    ctx.fillStyle = '#6B6355';
+    ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(state.device, padX+logoSize+w*0.025, cy+barH*0.2);
+
+    // divider
+    ctx.strokeStyle = 'rgba(20,18,15,0.18)';
+    ctx.beginPath(); ctx.moveTo(w*0.56,cy-barH*0.28); ctx.lineTo(w*0.56,cy+barH*0.28); ctx.stroke();
+
+    // metadata kanan
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#14120F';
+    ctx.font = (w*0.023) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(state.lens, w-padX, cy-barH*0.22);
+    let line2 = state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso;
+    ctx.fillStyle = '#6B6355';
+    ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(line2, w-padX, cy+barH*0.06);
+    if (state.showLocation){
+      const now = new Date();
+      const line3 = now.toLocaleDateString('id-ID') + '  ' + now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      ctx.fillText(line3, w-padX, cy+barH*0.30);
+    }
+    return;
+  }
+
+  if (state.template === 'cinema'){
+    const bar = h*0.07;
+    ctx.fillStyle = '#0B0A08';
+    ctx.fillRect(0,0,w,bar);
+    ctx.fillRect(0,h-bar,w,bar);
+    ctx.fillStyle = '#F3ECDD';
+    ctx.font = '600 ' + (w*0.038) + 'px Fraunces, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(state.device.toUpperCase(), w/2, h - bar/2 + h*0.012);
+    ctx.fillStyle = '#B8AF9E';
+    ctx.font = (w*0.024) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(paramLine(), w/2, h - bar/2 + h*0.045);
+    return;
+  }
+
+  if (state.template === 'minimal'){
+    const r = w*0.018;
+    const cx = align==='right' ? w-pad-r : (align==='center' ? w/2-r*3 : pad+r);
+    const cy = top ? pad+r+w*0.01 : h - pad - w*0.045;
+    if (state.logoImg){
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
+      ctx.drawImage(state.logoImg, cx-r, cy-r, r*2, r*2);
+      ctx.restore();
+    } else {
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(20,18,15,0.55)'; ctx.fill();
+      ctx.fillStyle = '#F3ECDD';
+      ctx.font = '600 ' + r + 'px Fraunces, serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(state.brand.charAt(0), cx, cy+r*0.05);
+      ctx.textBaseline='alphabetic';
+    }
+    const shadowOn = function(){ ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=4; };
+    const shadowOff = function(){ ctx.shadowBlur=0; };
+    ctx.textAlign = align==='right' ? 'right' : (align==='center' ? 'center' : 'left');
+    const tx = align==='right' ? cx-r-w*0.015 : (align==='center' ? w/2+r*2 : cx+r+w*0.015);
+    shadowOn();
+    ctx.fillStyle = '#F3ECDD';
+    ctx.font = '500 ' + (w*0.026) + 'px Inter, sans-serif';
+    ctx.fillText(state.brand + ' · ' + state.device, tx, cy+r*0.35);
+    shadowOff();
+
+    let line2 = new Date().toLocaleDateString('id-ID') + '  ' +
+      new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    if (state.showLocation && state.location) line2 += '  ·  ' + state.location;
+    shadowOn();
+    ctx.fillStyle = '#D8D2C4';
+    ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(line2, anchorX(w,pad), (top ? cy+r+w*0.03 : h-pad));
+    shadowOff();
+    return;
+  }
+
+  const gradH = h*0.22;
+  const grad = ctx.createLinearGradient(0, top?0:h-gradH, 0, top?gradH:h);
+  const c0 = 'rgba(20,18,15,0)', c1 = 'rgba(15,13,10,0.92)';
+  if (top){ grad.addColorStop(0,c1); grad.addColorStop(1,c0); ctx.fillStyle=grad; ctx.fillRect(0,0,w,gradH); }
+  else { grad.addColorStop(0,c0); grad.addColorStop(1,c1); ctx.fillStyle=grad; ctx.fillRect(0,h-gradH,w,gradH); }
+
+  const baseY = top ? pad + w*0.045 : h - pad;
+
+  if (state.template === 'mono'){
+    ctx.fillStyle = '#F3ECDD';
+    ctx.font = '600 ' + (w*0.042) + 'px Fraunces, serif';
+    ctx.fillText(state.device.toUpperCase(), anchorX(w,pad), baseY - h*0.035);
+    ctx.fillStyle = '#B8AF9E';
+    ctx.font = (w*0.024) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(paramLine(), anchorX(w,pad), baseY);
+    return;
+  }
+
+  if (state.template === 'optik'){
+    const bx = align==='right' ? w-pad-w*0.05 : pad;
+    ctx.fillStyle = '#3B5978';
+    ctx.fillRect(bx, baseY-h*0.075, w*0.05, w*0.05);
+    ctx.fillStyle = '#F3ECDD';
+    ctx.font = (w*0.032) + 'px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(state.device, bx + w*0.065, baseY - h*0.045);
+    ctx.fillStyle = '#B8AF9E';
+    ctx.font = (w*0.022) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(paramLine(), bx + w*0.065, baseY - h*0.012);
+    return;
+  }
+
+  if (state.template === 'custom' && state.logoImg){
+    const r = w*0.032;
+    const cx = align==='right' ? w-pad-r : pad+r;
+    const cy = baseY - h*0.038;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
+    const lr = state.logoImg.width / state.logoImg.height;
+    let lw = r*2, lh = r*2, lx = cx-r, ly = cy-r;
+    if (lr > 1){ lh = r*2; lw = lh*lr; lx = cx - lw/2; }
+    else { lw = r*2; lh = lw/lr; ly = cy - lh/2; }
+    ctx.drawImage(state.logoImg, lx, ly, lw, lh);
+    ctx.restore();
+
+    ctx.fillStyle = '#F3ECDD';
+    ctx.font = (w*0.036) + 'px Fraunces, serif';
+    ctx.textAlign = align==='right' ? 'right' : 'left';
+    const tx = align==='right' ? cx - r - w*0.02 : cx + r + w*0.02;
+    ctx.fillText(state.device, tx, cy+r*0.35);
+
+    ctx.fillStyle = '#B8AF9E';
+    ctx.font = (w*0.022) + 'px "IBM Plex Mono", monospace';
+    ctx.textAlign = align==='right' ? 'right' : 'left';
+    ctx.fillText(paramLine(), anchorX(w,pad), baseY);
+    return;
+  }
+
+  // rosso (default)
+  const r = w*0.032;
+  const cx = align==='right' ? w-pad-r : pad+r;
+  const cy = baseY - h*0.038;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle = '#9C2B3A'; ctx.fill();
+  ctx.fillStyle = '#F3ECDD';
+  ctx.font = 'italic 600 ' + (r*1.1) + 'px Fraunces, serif';
+  ctx.textAlign = 'center'; ctx.textBaseline='middle';
+  ctx.fillText(state.device.charAt(0), cx, cy+r*0.05);
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = '#F3ECDD';
+  ctx.font = (w*0.036) + 'px Fraunces, serif';
+  ctx.textAlign = align==='right' ? 'right' : 'left';
+  const tx = align==='right' ? cx - r - w*0.02 : cx + r + w*0.02;
+  ctx.fillText(state.device, tx, cy+r*0.35);
+
+  ctx.fillStyle = '#B8AF9E';
+  ctx.font = (w*0.022) + 'px "IBM Plex Mono", monospace';
+  ctx.textAlign = align==='right' ? 'right' : 'left';
+  ctx.fillText(paramLine(), anchorX(w,pad), baseY);
+}
+
+function render(){
+  const w = canvas.width / (window.devicePixelRatio||1);
+  const h = canvas.height / (window.devicePixelRatio||1);
+  ctx.clearRect(0,0,w,h);
+  if (state.img) drawPhoto(w,h); else drawPlaceholderScene(w,h);
+  if (state.showWatermark) drawWatermark(w,h);
+}
+
+function selectTemplate(key){
+  state.template = key;
+  document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.key === key);
+  });
+  render();
+  savePrefs();
+}
+
+function onFieldChange(){
+  state.brand = document.getElementById('fBrand').value || 'Atelier';
+  state.lens = document.getElementById('fLens').value;
+  state.location = document.getElementById('fLocation').value;
+  state.device = document.getElementById('fDevice').value || 'Atelier Six';
+  state.mm = document.getElementById('fMM').value;
+  state.f = document.getElementById('fF').value;
+  state.s = document.getElementById('fS').value;
+  state.iso = document.getElementById('fISO').value;
+  state.position = document.getElementById('fPosition').value;
+  render();
+  savePrefs();
+}
+
+function toggleSwitch(id){
+  const el = document.getElementById(id);
+  const on = !el.classList.contains('on');
+  el.classList.toggle('on', on);
+  if (id === 'swWatermark') state.showWatermark = on;
+  if (id === 'swLocation') state.showLocation = on;
+  render();
+  savePrefs();
+}
+
+document.getElementById('fileInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      state.img = img;
+      document.getElementById('dimCaption').textContent = img.width + '×' + img.height;
+      render();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('previewBox').addEventListener('click', function(){
+  document.getElementById('fileInput').click();
+});
+
+function downloadResult(){
+  const link = document.createElement('a');
+  link.download = 'atelier-watermark.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+document.getElementById('logoInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const entry = { id: 'l'+Date.now(), dataUrl: ev.target.result };
+    state.logos.push(entry);
+    saveLogos();
+    renderLogoGrid();
+    e.target.value = '';
+  };
+  reader.readAsDataURL(file);
+});
+
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('load', async function(){
+  await loadPrefs();
+  await loadLogos();
+  fitCanvas();
+});
+
+async function savePrefs(){
+  try{
+    localStorage.setItem('atelier:prefs', JSON.stringify({
+      template: state.template,
+      brand: state.brand, lens: state.lens, location: state.location,
+      device: state.device,
+      mm: state.mm, f: state.f, s: state.s, iso: state.iso,
+      position: state.position,
+      showWatermark: state.showWatermark,
+      showLocation: state.showLocation
+    }));
+  }catch(e){ console.error('gagal menyimpan preferensi', e); }
+}
+
+async function loadPrefs(){
+  try{
+    const raw = localStorage.getItem('atelier:prefs');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    Object.assign(state, p);
+    document.getElementById('fBrand').value = state.brand;
+    document.getElementById('fLens').value = state.lens;
+    document.getElementById('fLocation').value = state.location;
+    document.getElementById('fDevice').value = state.device;
+    document.getElementById('fMM').value = state.mm;
+    document.getElementById('fF').value = state.f;
+    document.getElementById('fS').value = state.s;
+    document.getElementById('fISO').value = state.iso;
+    document.getElementById('fPosition').value = state.position;
+    document.getElementById('swWatermark').classList.toggle('on', state.showWatermark);
+    document.getElementById('swLocation').classList.toggle('on', state.showLocation);
+    document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
+      el.classList.toggle('active', el.dataset.key === state.template);
+    });
+  }catch(e){ /* belum ada preferensi tersimpan */ }
+}
+
+function openLogoPicker(){
+  renderLogoGrid();
+  document.getElementById('logoModal').classList.add('open');
+}
+function closeLogoPicker(){
+  document.getElementById('logoModal').classList.remove('open');
+}
+
+function renderLogoGrid(){
+  const grid = document.getElementById('logoGrid');
+  grid.innerHTML = '';
+  state.logos.forEach(function(l){
+    const tile = document.createElement('div');
+    tile.className = 'logo-tile' + (l.id === state.selectedLogoId ? ' selected' : '');
+    tile.style.backgroundImage = 'url(' + l.dataUrl + ')';
+    tile.onclick = function(){ chooseLogo(l.id); };
+    const del = document.createElement('div');
+    del.className = 'del'; del.textContent = '✕';
+    del.onclick = function(ev){ ev.stopPropagation(); removeLogo(l.id); };
+    tile.appendChild(del);
+    grid.appendChild(tile);
+  });
+  const addTile = document.createElement('div');
+  addTile.className = 'logo-tile add';
+  addTile.textContent = '+';
+  addTile.onclick = function(){ document.getElementById('logoInput').click(); };
+  grid.appendChild(addTile);
+}
+
+function chooseLogo(id){
+  const l = state.logos.find(x=>x.id===id);
+  if (!l) return;
+  const img = new Image();
+  img.onload = function(){
+    state.logoImg = img;
+    state.selectedLogoId = id;
+    const chip = document.getElementById('chipCustom');
+    chip.style.display = 'flex';
+    const sw = document.getElementById('customSwatch');
+    sw.style.backgroundImage = 'url(' + l.dataUrl + ')';
+    sw.style.backgroundSize = 'cover';
+    sw.style.backgroundPosition = 'center';
+    sw.textContent = '';
+    selectTemplate('custom');
+    closeLogoPicker();
+  };
+  img.src = l.dataUrl;
+}
+
+function removeLogo(id){
+  state.logos = state.logos.filter(x=>x.id!==id);
+  if (state.selectedLogoId === id){ state.selectedLogoId = null; state.logoImg = null; }
+  saveLogos();
+  renderLogoGrid();
+}
+
+async function saveLogos(){
+  try{ localStorage.setItem('atelier:logos', JSON.stringify(state.logos)); }
+  catch(e){ console.error('gagal menyimpan logo (mungkin penuh)', e); }
+}
+
+async function loadLogos(){
+  try{
+    const raw = localStorage.getItem('atelier:logos');
+    if (raw) state.logos = JSON.parse(raw);
+  }catch(e){ /* belum ada logo tersimpan */ }
+}
+</script>
+</body>
+</html>
