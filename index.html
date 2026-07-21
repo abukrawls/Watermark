@@ -413,6 +413,18 @@
     font-family:'IBM Plex Mono',monospace; font-size:10.5px;
     color:var(--ivory-dim); text-align:center; padding:20px 0;
   }
+
+  .eye-toggle{
+    background:none; border:none; padding:4px;
+    color:var(--gold);
+    cursor:pointer;
+    display:flex; align-items:center;
+  }
+  .eye-toggle svg{width:17px; height:17px;}
+  .eye-toggle .eye-closed{display:none;}
+  .eye-toggle.off{color:var(--ivory-dim); opacity:0.55;}
+  .eye-toggle.off .eye-open{display:none;}
+  .eye-toggle.off .eye-closed{display:block;}
 </style>
 </head>
 <body>
@@ -487,6 +499,10 @@
 
   <div class="section-label">
     <div class="t">Identitas Fotografer</div>
+    <button class="eye-toggle on" id="eyePhotographer" onclick="toggleEye('showPhotographer','eyePhotographer')">
+      <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+    </button>
   </div>
   <div class="fields">
     <div class="field-row">
@@ -513,6 +529,10 @@
 
   <div class="section-label">
     <div class="t">Dokumentasi Lengkap</div>
+    <button class="eye-toggle on" id="eyeDocumentation" onclick="toggleEye('showDocumentation','eyeDocumentation')">
+      <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+    </button>
   </div>
   <div class="fields">
     <div class="field-row">
@@ -551,6 +571,10 @@
 
   <div class="section-label">
     <div class="t">Detail Perangkat</div>
+    <button class="eye-toggle on" id="eyeDevice" onclick="toggleEye('showDevice','eyeDevice')">
+      <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+    </button>
   </div>
   <div class="fields">
     <div class="field-row">
@@ -559,15 +583,11 @@
         <input id="fBrand" type="text" value="Atelier" oninput="onFieldChange()">
       </div>
       <div class="field">
-        <label>Lens</label>
-        <input id="fLens" type="text" value="35mm f/1.8 Prime" oninput="onFieldChange()">
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
         <label>Nama Perangkat</label>
         <input id="fDevice" type="text" value="Atelier Six" oninput="onFieldChange()">
       </div>
+    </div>
+    <div class="field-row">
       <div class="field">
         <label>Posisi</label>
         <select id="fPosition" onchange="onFieldChange()">
@@ -577,6 +597,16 @@
           <option value="top-left">Atas · Rata Kiri</option>
           <option value="top-right">Atas · Rata Kanan</option>
           <option value="top-center">Atas · Tengah</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Warna Bar</label>
+        <select id="fBarColor" onchange="onFieldChange()">
+          <option value="white">Putih</option>
+          <option value="black">Hitam</option>
+          <option value="gold">Kuning</option>
+          <option value="float" selected>Mengambang</option>
+          <option value="none">Tanpa Bar</option>
         </select>
       </div>
     </div>
@@ -619,8 +649,6 @@
 
   <div class="cta-area">
     <button class="btn-primary" id="btnDownload" onclick="downloadResult()">Terapkan &amp; Unduh</button>
-    <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">Pilih Foto Lain</button>
-    <div class="modal-close" style="text-align:center; margin-top:2px;" onclick="resetAll()">RESET KE PENGATURAN AWAL</div>
   </div>
 
   <div class="bottomnav">
@@ -643,21 +671,23 @@
   </div>
 
 </div>
-<div class="credit">5 TEMPLATE — WHITE BAR · MINIMAL · EXIF · SIGNATURE · FULL INFO</div>
 </div>
 
 <script>
 const state = {
   template: 'whitebar',
   brand: 'Atelier',
-  lens: '35mm f/1.8 Prime',
   location: 'Jakarta, ID',
   device: 'Atelier Six',
+  barColor: 'float',
+  showDevice: true,
   mm: '35', f: '1.8', s: '1/250', iso: '100',
   dateTime: '',
   photographer: 'Rangga Aditya', copyright: '© 2026', website: '', social: '',
+  showPhotographer: true,
   cameraModel: 'Atelier ILC-7', city: 'Jakarta', country: 'Indonesia',
   gps: '-6.2088, 106.8456', elevation: '', weather: '',
+  showDocumentation: true,
   position: 'bottom-left',
   showWatermark: true,
   showLocation: false,
@@ -746,6 +776,30 @@ function textAlignFor(){
   return 'left';
 }
 
+function barPalette(key){
+  switch(key){
+    case 'black': return {bg:'solid', color:'rgba(10,9,7,0.92)', primary:'#F3ECDD', secondary:'#B8AF9E', muted:'#C7A661', divider:'rgba(243,236,221,0.18)', shadow:false};
+    case 'gold': return {bg:'solid', color:'#C7A661', primary:'#1A1508', secondary:'#4A3A18', muted:'#2A2005', divider:'rgba(26,21,8,0.25)', shadow:false};
+    case 'none': return {bg:null, color:null, primary:'#F3ECDD', secondary:'#D8D2C4', muted:'#C7A661', divider:null, shadow:true};
+    case 'float': return {bg:'gradient', color:null, primary:'#F3ECDD', secondary:'#B8AF9E', muted:'#8C7239', divider:'rgba(199,166,97,0.35)', shadow:false};
+    default: return {bg:'solid', color:'#F5F2EA', primary:'#14120F', secondary:'#6B6355', muted:'#8C7239', divider:'rgba(20,18,15,0.18)', shadow:false};
+  }
+}
+function drawBarBg(w, barY, barH, top, pal){
+  if (pal.bg === 'solid'){
+    ctx.fillStyle = pal.color;
+    ctx.fillRect(0, barY, w, barH);
+  } else if (pal.bg === 'gradient'){
+    const grad = ctx.createLinearGradient(0, barY, 0, barY+barH);
+    if (top){ grad.addColorStop(0,'rgba(9,8,7,0.9)'); grad.addColorStop(1,'rgba(15,13,10,0)'); }
+    else { grad.addColorStop(0,'rgba(15,13,10,0)'); grad.addColorStop(1,'rgba(9,8,7,0.9)'); }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, barY, w, barH);
+  }
+}
+function applyShadow(){ ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=4; }
+function clearShadow(){ ctx.shadowBlur=0; }
+
 function drawWatermark(w,h){
   const pad = w*0.04;
   const align = textAlignFor();
@@ -756,12 +810,9 @@ function drawWatermark(w,h){
   if (state.template === 'whitebar'){
     const barH = h*0.16;
     const barY = top ? 0 : h-barH;
-    ctx.fillStyle = '#F5F2EA';
-    ctx.fillRect(0, barY, w, barH);
-    ctx.strokeStyle = 'rgba(20,18,15,0.12)';
-    ctx.lineWidth = 1;
-    const lineY = top ? barY+barH : barY;
-    ctx.beginPath(); ctx.moveTo(0,lineY); ctx.lineTo(w,lineY); ctx.stroke();
+    const pal = barPalette(state.barColor);
+    drawBarBg(w, barY, barH, top, pal);
+    if (pal.shadow) applyShadow();
 
     const cy = barY + barH/2;
     const padX = w*0.045;
@@ -769,91 +820,102 @@ function drawWatermark(w,h){
     const headX = rightSide ? w-padX-logoSize : padX;
     const specX = rightSide ? padX : w-padX;
 
-    if (!drawLogoCircle(headX+logoSize/2, cy, logoSize/2)){
-      ctx.fillStyle = '#14120F';
-      ctx.font = '600 ' + logoSize*0.75 + 'px Fraunces, serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(state.brand.charAt(0), headX+logoSize/2, cy);
-      ctx.textBaseline = 'alphabetic';
+    if (state.showDevice){
+      if (!drawLogoCircle(headX+logoSize/2, cy, logoSize/2)){
+        ctx.fillStyle = pal.primary;
+        ctx.font = '600 ' + logoSize*0.75 + 'px Fraunces, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(state.brand.charAt(0), headX+logoSize/2, cy);
+        ctx.textBaseline = 'alphabetic';
+      }
+      ctx.fillStyle = pal.primary;
+      ctx.font = '600 ' + (w*0.034) + 'px Fraunces, serif';
+      ctx.textAlign = rightSide ? 'right' : 'left';
+      const headTx = rightSide ? headX-w*0.025 : headX+logoSize+w*0.025;
+      ctx.fillText(state.brand, headTx, cy-barH*0.08);
+      ctx.fillStyle = pal.secondary;
+      ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.device, headTx, cy+barH*0.2);
     }
-    ctx.fillStyle = '#14120F';
-    ctx.font = '600 ' + (w*0.034) + 'px Fraunces, serif';
-    ctx.textAlign = rightSide ? 'right' : 'left';
-    const headTx = rightSide ? headX-w*0.025 : headX+logoSize+w*0.025;
-    ctx.fillText(state.brand, headTx, cy-barH*0.08);
-    ctx.fillStyle = '#6B6355';
-    ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.device, headTx, cy+barH*0.2);
 
-    ctx.strokeStyle = 'rgba(20,18,15,0.18)';
-    ctx.beginPath(); ctx.moveTo(w*0.56,cy-barH*0.28); ctx.lineTo(w*0.56,cy+barH*0.28); ctx.stroke();
+    if (pal.divider){
+      ctx.strokeStyle = pal.divider;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(w*0.56,cy-barH*0.28); ctx.lineTo(w*0.56,cy+barH*0.28); ctx.stroke();
+    }
 
     ctx.textAlign = rightSide ? 'left' : 'right';
-    ctx.fillStyle = '#14120F';
-    ctx.font = (w*0.023) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.lens, specX, cy-barH*0.22);
-    let line2 = state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso;
-    ctx.fillStyle = '#6B6355';
-    ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(line2, specX, cy+barH*0.06);
+    ctx.fillStyle = pal.secondary;
+    ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+    ctx.fillText(state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso, specX, cy-barH*0.06);
     if (state.showLocation){
-      const line3 = [state.location, state.dateTime].filter(Boolean).join('  ·  ');
-      ctx.fillText(line3, specX, cy+barH*0.30);
+      const line2 = [state.location, state.dateTime].filter(Boolean).join('  ·  ');
+      ctx.fillText(line2, specX, cy+barH*0.22);
     }
+    clearShadow();
     return;
   }
 
   if (state.template === 'full'){
     const barH = h*0.34;
     const barY = top ? 0 : h-barH;
-    ctx.fillStyle = 'rgba(10,9,7,0.90)';
-    ctx.fillRect(0,barY,w,barH);
-    ctx.strokeStyle = 'rgba(199,166,97,0.6)';
-    ctx.lineWidth = 1;
-    const lineY = top ? barY+barH : barY;
-    ctx.beginPath(); ctx.moveTo(0,lineY); ctx.lineTo(w,lineY); ctx.stroke();
+    const pal = barPalette(state.barColor);
+    drawBarBg(w, barY, barH, top, pal);
+    if (pal.shadow) applyShadow();
+    if (pal.divider){
+      ctx.strokeStyle = pal.divider;
+      ctx.lineWidth = 1;
+      const lineY = top ? barY+barH : barY;
+      ctx.beginPath(); ctx.moveTo(0,lineY); ctx.lineTo(w,lineY); ctx.stroke();
+    }
 
     const lx = rightSide ? w-pad : pad;
     const ta = rightSide ? 'right' : 'left';
     let ly = barY+w*0.045;
     const rowGap = w*0.034;
-    const hasLogo = !!state.logoImg;
-    const lr = w*0.028;
-    const logoCx = rightSide ? lx-lr : lx+lr;
-    if (hasLogo) drawLogoCircle(logoCx, ly-lr*0.7, lr);
-    const textX = hasLogo ? (rightSide ? lx-lr*2-w*0.015 : lx+lr*2+w*0.015) : lx;
 
-    ctx.textAlign = ta;
-    ctx.fillStyle = '#F3ECDD';
-    ctx.font = '600 ' + (w*0.03) + 'px Fraunces, serif';
-    ctx.fillText(state.brand + '  ' + state.device, textX, ly);
-    ctx.fillStyle = '#8C7239';
-    ctx.font = (w*0.017) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.cameraModel + '  ·  ' + state.lens, textX, ly+rowGap*0.75);
+    if (state.showDevice){
+      const hasLogo = !!state.logoImg;
+      const lr = w*0.028;
+      const logoCx = rightSide ? lx-lr : lx+lr;
+      if (hasLogo) drawLogoCircle(logoCx, ly-lr*0.7, lr);
+      const textX = hasLogo ? (rightSide ? lx-lr*2-w*0.015 : lx+lr*2+w*0.015) : lx;
+      ctx.textAlign = ta;
+      ctx.fillStyle = pal.primary;
+      ctx.font = '600 ' + (w*0.03) + 'px Fraunces, serif';
+      ctx.fillText(state.brand + '  ' + state.device, textX, ly);
+      if (state.showDocumentation){
+        ctx.fillStyle = pal.muted;
+        ctx.font = (w*0.017) + 'px "IBM Plex Mono", monospace';
+        ctx.fillText(state.cameraModel, textX, ly+rowGap*0.75);
+      }
+    }
     ly += rowGap*1.7;
 
-    ctx.fillStyle = '#F3ECDD';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = pal.primary;
     ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
     let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
     ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, lx, ly);
     ly += rowGap*1.3;
 
-    ctx.strokeStyle = 'rgba(199,166,97,0.25)';
-    ctx.beginPath(); ctx.moveTo(pad,ly-rowGap*0.7); ctx.lineTo(w-pad,ly-rowGap*0.7); ctx.stroke();
+    if (pal.divider){
+      ctx.strokeStyle = pal.divider;
+      ctx.beginPath(); ctx.moveTo(pad,ly-rowGap*0.7); ctx.lineTo(w-pad,ly-rowGap*0.7); ctx.stroke();
+    }
 
-    if (state.showLocation){
-      ctx.fillStyle = '#F3ECDD';
+    if (state.showDocumentation){
+      ctx.fillStyle = pal.primary;
       ctx.font = (w*0.02) + 'px Inter, sans-serif';
-      let locLine = [state.location, state.city, state.country].filter(Boolean).join(', ');
-      ctx.fillText(locLine, lx, ly);
-      ly += rowGap*0.85;
-      ctx.fillStyle = '#8C7239';
+      let locLine = [state.city, state.country].filter(Boolean).join(', ');
+      if (locLine){ ctx.fillText(locLine, lx, ly); ly += rowGap*0.85; }
+      ctx.fillStyle = pal.muted;
       ctx.font = (w*0.017) + 'px "IBM Plex Mono", monospace';
       ctx.fillText(state.gps, lx, ly);
       let extra = [state.elevation, state.weather].filter(Boolean).join('   ·   ');
       if (extra){
         ly += rowGap*0.75;
-        ctx.fillStyle = '#B8AF9E';
+        ctx.fillStyle = pal.secondary;
         ctx.fillText(extra, lx, ly);
       }
     }
@@ -861,14 +923,16 @@ function drawWatermark(w,h){
     if (state.showLocation && state.dateTime){
       ctx.textAlign = rightSide ? 'left' : 'right';
       const dtX = rightSide ? pad : w-pad;
-      ctx.fillStyle = '#B8AF9E';
+      ctx.fillStyle = pal.secondary;
       ctx.font = (w*0.018) + 'px "IBM Plex Mono", monospace';
       ctx.fillText(state.dateTime, dtX, barY+w*0.045);
     }
+    clearShadow();
     return;
   }
 
   if (state.template === 'signature'){
+    if (!state.showPhotographer) return;
     const cx = align==='left' ? pad+w*0.2 : align==='right' ? w-pad-w*0.2 : w/2;
     const ta = align==='left' ? 'left' : align==='right' ? 'right' : 'center';
     ctx.textAlign = ta;
@@ -929,40 +993,31 @@ function drawWatermark(w,h){
   if (state.template === 'exif'){
     const barH = h*0.24;
     const barY = top ? 0 : h-barH;
-    const grad = ctx.createLinearGradient(0,barY,0,barY+barH);
-    if (top){
-      grad.addColorStop(0,'rgba(9,8,7,0.94)');
-      grad.addColorStop(0.75,'rgba(12,11,9,0.82)');
-      grad.addColorStop(1,'rgba(15,13,10,0)');
-    } else {
-      grad.addColorStop(0,'rgba(15,13,10,0)');
-      grad.addColorStop(0.25,'rgba(12,11,9,0.82)');
-      grad.addColorStop(1,'rgba(9,8,7,0.94)');
+    const pal = barPalette(state.barColor);
+    drawBarBg(w, barY, barH, top, pal);
+    if (pal.shadow) applyShadow();
+    if (pal.divider){
+      ctx.strokeStyle = pal.divider;
+      ctx.lineWidth = 1;
+      const lineY = top ? barY+barH-w*0.01 : barY+w*0.01;
+      ctx.beginPath(); ctx.moveTo(pad,lineY); ctx.lineTo(w-pad,lineY); ctx.stroke();
     }
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,barY,w,barH);
-
-    ctx.strokeStyle = 'rgba(199,166,97,0.6)';
-    ctx.lineWidth = 1;
-    const lineY = top ? barY+barH-w*0.01 : barY+w*0.01;
-    ctx.beginPath(); ctx.moveTo(pad,lineY); ctx.lineTo(w-pad,lineY); ctx.stroke();
 
     const headY = barY+w*0.055;
     const ta = rightSide ? 'right' : 'left';
     const headX = rightSide ? w-pad : pad;
     const otherX = rightSide ? pad : w-pad;
 
-    ctx.textAlign = ta;
-    ctx.fillStyle = '#F3ECDD';
-    ctx.font = '600 ' + (w*0.032) + 'px Fraunces, serif';
-    ctx.fillText(state.brand + ' ' + state.device, headX, headY);
-    ctx.fillStyle = '#B8AF9E';
-    ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.lens, headX, headY+w*0.03);
+    if (state.showDevice){
+      ctx.textAlign = ta;
+      ctx.fillStyle = pal.primary;
+      ctx.font = '600 ' + (w*0.032) + 'px Fraunces, serif';
+      ctx.fillText(state.brand + ' ' + state.device, headX, headY);
+    }
 
     if (state.showLocation){
       ctx.textAlign = rightSide ? 'left' : 'right';
-      ctx.fillStyle = '#B8AF9E';
+      ctx.fillStyle = pal.secondary;
       ctx.font = (w*0.019) + 'px "IBM Plex Mono", monospace';
       ctx.fillText(state.dateTime, otherX, headY);
       if (state.location) ctx.fillText(state.location, otherX, headY+w*0.03);
@@ -978,13 +1033,14 @@ function drawWatermark(w,h){
     specs.forEach(function(sp,i){
       const x = pad + i*colW;
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#8C7239';
+      ctx.fillStyle = pal.muted;
       ctx.font = (w*0.016) + 'px "IBM Plex Mono", monospace';
       ctx.fillText(sp[0], x, rowY0);
-      ctx.fillStyle = '#F3ECDD';
+      ctx.fillStyle = pal.primary;
       ctx.font = '500 ' + (w*0.024) + 'px Inter, sans-serif';
       ctx.fillText(sp[1], x, rowY0+w*0.032);
     });
+    clearShadow();
     return;
   }
 
@@ -992,39 +1048,42 @@ function drawWatermark(w,h){
     const r = w*0.018;
     const cx = rightSide ? w-pad-r : (align==='center' ? w/2-r*3 : pad+r);
     const cy = top ? pad+r+w*0.01 : h - pad - w*0.045;
-    if (!drawLogoCircle(cx, cy, r)){
-      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-      ctx.fillStyle = 'rgba(20,18,15,0.55)'; ctx.fill();
-      ctx.fillStyle = '#F3ECDD';
-      ctx.font = '600 ' + r + 'px Fraunces, serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(state.brand.charAt(0), cx, cy+r*0.05);
-      ctx.textBaseline='alphabetic';
+    if (state.showDevice){
+      if (!drawLogoCircle(cx, cy, r)){
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+        ctx.fillStyle = 'rgba(20,18,15,0.55)'; ctx.fill();
+        ctx.fillStyle = '#F3ECDD';
+        ctx.font = '600 ' + r + 'px Fraunces, serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(state.brand.charAt(0), cx, cy+r*0.05);
+        ctx.textBaseline='alphabetic';
+      }
     }
-    const shadowOn = function(){ ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=4; };
-    const shadowOff = function(){ ctx.shadowBlur=0; };
     ctx.textAlign = rightSide ? 'right' : (align==='center' ? 'center' : 'left');
     const tx = rightSide ? cx-r-w*0.015 : (align==='center' ? w/2+r*2 : cx+r+w*0.015);
-    shadowOn();
-    ctx.fillStyle = '#F3ECDD';
-    ctx.font = '500 ' + (w*0.026) + 'px Inter, sans-serif';
-    ctx.fillText(state.brand + ' · ' + state.device, tx, cy+r*0.35);
-    shadowOff();
+    if (state.showDevice){
+      applyShadow();
+      ctx.fillStyle = '#F3ECDD';
+      ctx.font = '500 ' + (w*0.026) + 'px Inter, sans-serif';
+      ctx.fillText(state.brand + ' · ' + state.device, tx, cy+r*0.35);
+      clearShadow();
+    }
 
     let line2 = state.dateTime || '';
     if (state.showLocation && state.location) line2 += (line2?'  ·  ':'') + state.location;
     if (line2){
-      shadowOn();
+      applyShadow();
       ctx.fillStyle = '#D8D2C4';
       ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
       ctx.fillText(line2, anchorX(w,pad), (top ? cy+r+w*0.03 : h-pad));
-      shadowOff();
+      clearShadow();
     }
     return;
   }
 
 }
 
+function rowStep
 function rowStep(dir, amount){ return dir * amount; }
 
 let comparing = false;
@@ -1044,6 +1103,13 @@ function render(){
   paint(canvas.getContext('2d'), w, h);
 }
 
+function toggleEye(key, btnId){
+  state[key] = !state[key];
+  document.getElementById(btnId).classList.toggle('off', !state[key]);
+  render();
+  savePrefs();
+}
+
 function selectTemplate(key){
   state.template = key;
   document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
@@ -1055,9 +1121,9 @@ function selectTemplate(key){
 
 function onFieldChange(){
   state.brand = document.getElementById('fBrand').value || 'Atelier';
-  state.lens = document.getElementById('fLens').value;
   state.location = document.getElementById('fLocation').value;
   state.device = document.getElementById('fDevice').value || 'Atelier Six';
+  state.barColor = document.getElementById('fBarColor').value;
   state.mm = document.getElementById('fMM').value;
   state.f = document.getElementById('fF').value;
   state.s = document.getElementById('fS').value;
@@ -1167,55 +1233,12 @@ window.addEventListener('load', async function(){
   fitCanvas();
 });
 
-function resetAll(){
-  state.img = null;
-  state.template = 'whitebar';
-  state.brand = 'Atelier'; state.lens = '35mm f/1.8 Prime'; state.location = 'Jakarta, ID';
-  state.device = 'Atelier Six'; state.mm='35'; state.f='1.8'; state.s='1/250'; state.iso='100';
-  state.dateTime = new Date().toLocaleDateString('id-ID') + '  ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-  state.photographer='Rangga Aditya'; state.copyright='© 2026'; state.website=''; state.social='';
-  state.cameraModel='Atelier ILC-7'; state.city='Jakarta'; state.country='Indonesia';
-  state.gps='-6.2088, 106.8456'; state.elevation=''; state.weather='';
-  state.position='bottom-left'; state.showWatermark=true; state.showLocation=false;
-  state.logoImg=null; state.selectedLogoId=null;
-
-  document.getElementById('fBrand').value = state.brand;
-  document.getElementById('fLens').value = state.lens;
-  document.getElementById('fLocation').value = state.location;
-  document.getElementById('fDateTime').value = state.dateTime;
-  document.getElementById('fDevice').value = state.device;
-  document.getElementById('fMM').value = state.mm;
-  document.getElementById('fF').value = state.f;
-  document.getElementById('fS').value = state.s;
-  document.getElementById('fISO').value = state.iso;
-  document.getElementById('fPhotographer').value = state.photographer;
-  document.getElementById('fCopyright').value = state.copyright;
-  document.getElementById('fWebsite').value = state.website;
-  document.getElementById('fSocial').value = state.social;
-  document.getElementById('fCameraModel').value = state.cameraModel;
-  document.getElementById('fCity').value = state.city;
-  document.getElementById('fCountry').value = state.country;
-  document.getElementById('fGPS').value = state.gps;
-  document.getElementById('fElevation').value = state.elevation;
-  document.getElementById('fWeather').value = state.weather;
-  document.getElementById('fPosition').value = state.position;
-  document.getElementById('swWatermark').classList.add('on');
-  document.getElementById('swLocation').classList.remove('on');
-  document.getElementById('dimCaption').textContent = '4:5';
-  document.querySelectorAll('#templateList .tchip[data-key]').forEach(function(el){
-    el.classList.toggle('active', el.dataset.key === state.template);
-  });
-
-  render();
-  savePrefs();
-}
-
 async function savePrefs(){
   try{
     await window.storage.set('atelier:prefs', JSON.stringify({
       template: state.template,
-      brand: state.brand, lens: state.lens, location: state.location,
-      device: state.device,
+      brand: state.brand, location: state.location,
+      device: state.device, barColor: state.barColor, showDevice: state.showDevice,
       mm: state.mm, f: state.f, s: state.s, iso: state.iso,
       dateTime: state.dateTime,
       photographer: state.photographer, copyright: state.copyright,
@@ -1225,6 +1248,8 @@ async function savePrefs(){
       position: state.position,
       showWatermark: state.showWatermark,
       showLocation: state.showLocation,
+      showPhotographer: state.showPhotographer,
+      showDocumentation: state.showDocumentation,
       selectedLogoId: state.selectedLogoId
     }), false);
   }catch(e){ console.error('gagal menyimpan preferensi', e); }
@@ -1240,7 +1265,6 @@ async function loadPrefs(){
     if (!validTemplates.includes(state.template)) state.template = 'whitebar';
     if (!state.dateTime) state.dateTime = new Date().toLocaleDateString('id-ID') + '  ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('fBrand').value = state.brand;
-    document.getElementById('fLens').value = state.lens;
     document.getElementById('fLocation').value = state.location;
     document.getElementById('fDateTime').value = state.dateTime;
     document.getElementById('fDevice').value = state.device;
@@ -1259,8 +1283,12 @@ async function loadPrefs(){
     document.getElementById('fElevation').value = state.elevation;
     document.getElementById('fWeather').value = state.weather;
     document.getElementById('fPosition').value = state.position;
+    document.getElementById('fBarColor').value = state.barColor;
+    document.getElementById('eyeDevice').classList.toggle('off', !state.showDevice);
     document.getElementById('swWatermark').classList.toggle('on', state.showWatermark);
     document.getElementById('swLocation').classList.toggle('on', state.showLocation);
+    document.getElementById('eyePhotographer').classList.toggle('off', !state.showPhotographer);
+    document.getElementById('eyeDocumentation').classList.toggle('off', !state.showDocumentation);
     document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
       el.classList.toggle('active', el.dataset.key === state.template);
     });
