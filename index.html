@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atelier — Watermark Studio</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#14120F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -102,7 +100,26 @@
     width:100%;height:100%;
     display:block;
     background:#0F0D0B;
+    cursor:move;
+    touch-action:none;
+  }
+  .compare-btn{
+    position:absolute;
+    top:10px; right:10px;
+    width:32px; height:32px;
+    border-radius:50%;
+    background:rgba(15,13,10,0.55);
+    border:1px solid rgba(243,236,221,0.25);
+    color:var(--ivory);
+    display:flex; align-items:center; justify-content:center;
     cursor:pointer;
+    touch-action:none;
+  }
+  .compare-btn svg{width:16px; height:16px;}
+  .compare-btn.active{
+    background:var(--gold);
+    color:#1A1508;
+    border-color:var(--gold);
   }
 
   .preview-caption{
@@ -418,6 +435,9 @@
   <div class="preview-wrap">
     <div class="preview" id="previewBox">
       <canvas id="wmCanvas"></canvas>
+      <button class="compare-btn" id="compareBtn" title="Tahan untuk lihat sebelum/sesudah">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
     </div>
     <div class="preview-caption">
       <span>PRATINJAU <span class="dot">·</span> LIVE</span>
@@ -603,6 +623,7 @@
   <div class="cta-area">
     <button class="btn-primary" id="btnDownload" onclick="downloadResult()">Terapkan &amp; Unduh</button>
     <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">Pilih Foto Lain</button>
+    <div class="modal-close" style="text-align:center; margin-top:2px;" onclick="resetAll()">RESET KE PENGATURAN AWAL</div>
   </div>
 
   <div class="bottomnav">
@@ -646,11 +667,13 @@ const state = {
   img: null,
   logoImg: null,
   logos: [],
-  selectedLogoId: null
+  selectedLogoId: null,
+  offsetX: 0,
+  offsetY: 0
 };
 
 const canvas = document.getElementById('wmCanvas');
-const ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d');
 const box = document.getElementById('previewBox');
 
 function fitCanvas(){
@@ -938,12 +961,26 @@ function drawWatermark(w,h){
 
 }
 
+let comparing = false;
+
+function paint(targetCtx, w, h, offX, offY){
+  const prev = ctx;
+  ctx = targetCtx;
+  ctx.clearRect(0,0,w,h);
+  if (state.img) drawPhoto(w,h); else drawPlaceholderScene(w,h);
+  if (state.showWatermark && !comparing){
+    ctx.save();
+    ctx.translate(offX,offY);
+    drawWatermark(w,h);
+    ctx.restore();
+  }
+  ctx = prev;
+}
+
 function render(){
   const w = canvas.width / (window.devicePixelRatio||1);
   const h = canvas.height / (window.devicePixelRatio||1);
-  ctx.clearRect(0,0,w,h);
-  if (state.img) drawPhoto(w,h); else drawPlaceholderScene(w,h);
-  if (state.showWatermark) drawWatermark(w,h);
+  paint(canvas.getContext('2d'), w, h, state.offsetX||0, state.offsetY||0);
 }
 
 function selectTemplate(key){
@@ -1007,14 +1044,67 @@ document.getElementById('fileInput').addEventListener('change', function(e){
   reader.readAsDataURL(file);
 });
 
-document.getElementById('previewBox').addEventListener('click', function(){
-  document.getElementById('fileInput').click();
+const compareBtn = document.getElementById('compareBtn');
+function startCompare(e){
+  e.preventDefault(); e.stopPropagation();
+  comparing = true;
+  compareBtn.classList.add('active');
+  render();
+}
+function endCompare(e){
+  if (e){ e.preventDefault(); e.stopPropagation(); }
+  comparing = false;
+  compareBtn.classList.remove('active');
+  render();
+}
+compareBtn.addEventListener('pointerdown', startCompare);
+compareBtn.addEventListener('pointerup', endCompare);
+compareBtn.addEventListener('pointerleave', endCompare);
+compareBtn.addEventListener('pointercancel', endCompare);
+
+let dragState = null;
+canvas.addEventListener('pointerdown', function(e){
+  const rect = canvas.getBoundingClientRect();
+  dragState = {
+    startX: e.clientX, startY: e.clientY,
+    baseX: state.offsetX||0, baseY: state.offsetY||0,
+    moved: false, rectW: rect.width, rectH: rect.height
+  };
+  canvas.setPointerCapture(e.pointerId);
 });
+canvas.addEventListener('pointermove', function(e){
+  if (!dragState) return;
+  const dx = e.clientX - dragState.startX;
+  const dy = e.clientY - dragState.startY;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragState.moved = true;
+  if (!dragState.moved) return;
+  const maxX = dragState.rectW*0.35, maxY = dragState.rectH*0.35;
+  state.offsetX = Math.max(-maxX, Math.min(maxX, dragState.baseX + dx));
+  state.offsetY = Math.max(-maxY, Math.min(maxY, dragState.baseY + dy));
+  render();
+});
+canvas.addEventListener('pointerup', function(e){
+  if (dragState && dragState.moved){ savePrefs(); }
+  else { document.getElementById('fileInput').click(); }
+  dragState = null;
+});
+canvas.addEventListener('pointercancel', function(){ dragState = null; });
 
 function downloadResult(){
+  const previewW = canvas.width / (window.devicePixelRatio||1);
+  const previewH = canvas.height / (window.devicePixelRatio||1);
+  const outW = state.img ? state.img.width : 1080;
+  const outH = state.img ? state.img.height : Math.round(1080 * previewH/previewW);
+  const scale = outW / previewW;
+
+  const off = document.createElement('canvas');
+  off.width = outW; off.height = outH;
+  const offCtx = off.getContext('2d');
+  paint(offCtx, outW, outH, (state.offsetX||0)*scale, (state.offsetY||0)*scale);
+
   const link = document.createElement('a');
-  link.download = 'atelier-watermark.png';
-  link.href = canvas.toDataURL('image/png');
+  link.download = 'atelier-watermark-' + outW + 'x' + outH + '.png';
+  link.href = off.toDataURL('image/png');
   link.click();
 }
 
@@ -1039,9 +1129,54 @@ window.addEventListener('load', async function(){
   fitCanvas();
 });
 
+function resetAll(){
+  state.img = null;
+  state.template = 'whitebar';
+  state.brand = 'Atelier'; state.lens = '35mm f/1.8 Prime'; state.location = 'Jakarta, ID';
+  state.device = 'Atelier Six'; state.mm='35'; state.f='1.8'; state.s='1/250'; state.iso='100';
+  state.wb='Auto'; state.ev='0 EV';
+  state.photographer='Rangga Aditya'; state.copyright='© 2026'; state.website=''; state.social='';
+  state.cameraModel='Atelier ILC-7'; state.city='Jakarta'; state.country='Indonesia';
+  state.gps='-6.2088, 106.8456'; state.elevation=''; state.weather='';
+  state.position='bottom-left'; state.showWatermark=true; state.showLocation=false;
+  state.logoImg=null; state.selectedLogoId=null;
+  state.offsetX=0; state.offsetY=0;
+
+  document.getElementById('fBrand').value = state.brand;
+  document.getElementById('fLens').value = state.lens;
+  document.getElementById('fLocation').value = state.location;
+  document.getElementById('fDevice').value = state.device;
+  document.getElementById('fMM').value = state.mm;
+  document.getElementById('fF').value = state.f;
+  document.getElementById('fS').value = state.s;
+  document.getElementById('fISO').value = state.iso;
+  document.getElementById('fWB').value = state.wb;
+  document.getElementById('fEV').value = state.ev;
+  document.getElementById('fPhotographer').value = state.photographer;
+  document.getElementById('fCopyright').value = state.copyright;
+  document.getElementById('fWebsite').value = state.website;
+  document.getElementById('fSocial').value = state.social;
+  document.getElementById('fCameraModel').value = state.cameraModel;
+  document.getElementById('fCity').value = state.city;
+  document.getElementById('fCountry').value = state.country;
+  document.getElementById('fGPS').value = state.gps;
+  document.getElementById('fElevation').value = state.elevation;
+  document.getElementById('fWeather').value = state.weather;
+  document.getElementById('fPosition').value = state.position;
+  document.getElementById('swWatermark').classList.add('on');
+  document.getElementById('swLocation').classList.remove('on');
+  document.getElementById('dimCaption').textContent = '4:5';
+  document.querySelectorAll('#templateList .tchip[data-key]').forEach(function(el){
+    el.classList.toggle('active', el.dataset.key === state.template);
+  });
+
+  render();
+  savePrefs();
+}
+
 async function savePrefs(){
   try{
-    localStorage.setItem('atelier:prefs', JSON.stringify({
+    await window.storage.set('atelier:prefs', JSON.stringify({
       template: state.template,
       brand: state.brand, lens: state.lens, location: state.location,
       device: state.device,
@@ -1053,16 +1188,17 @@ async function savePrefs(){
       gps: state.gps, elevation: state.elevation, weather: state.weather,
       position: state.position,
       showWatermark: state.showWatermark,
-      showLocation: state.showLocation
-    }));
+      showLocation: state.showLocation,
+      offsetX: state.offsetX, offsetY: state.offsetY
+    }), false);
   }catch(e){ console.error('gagal menyimpan preferensi', e); }
 }
 
 async function loadPrefs(){
   try{
-    const raw = localStorage.getItem('atelier:prefs');
-    if (!raw) return;
-    const p = JSON.parse(raw);
+    const res = await window.storage.get('atelier:prefs', false);
+    if (!res) return;
+    const p = JSON.parse(res.value);
     Object.assign(state, p);
     const validTemplates = ['whitebar','minimal','exif','signature','full'];
     if (!validTemplates.includes(state.template)) state.template = 'whitebar';
@@ -1146,14 +1282,14 @@ function removeLogo(id){
 }
 
 async function saveLogos(){
-  try{ localStorage.setItem('atelier:logos', JSON.stringify(state.logos)); }
-  catch(e){ console.error('gagal menyimpan logo (mungkin penuh)', e); }
+  try{ await window.storage.set('atelier:logos', JSON.stringify(state.logos), false); }
+  catch(e){ console.error('gagal menyimpan logo', e); }
 }
 
 async function loadLogos(){
   try{
-    const raw = localStorage.getItem('atelier:logos');
-    if (raw) state.logos = JSON.parse(raw);
+    const res = await window.storage.get('atelier:logos', false);
+    if (res) state.logos = JSON.parse(res.value);
   }catch(e){ /* belum ada logo tersimpan */ }
 }
 
