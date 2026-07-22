@@ -425,6 +425,21 @@
   .eye-toggle.off{color:var(--ivory-dim); opacity:0.55;}
   .eye-toggle.off .eye-open{display:none;}
   .eye-toggle.off .eye-closed{display:block;}
+  .field-eye-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:3px;
+  }
+  .field-eye-row label{ margin:0; }
+  .eye-toggle-sm{
+    background:none; border:none; padding:0;
+    color:var(--gold); cursor:pointer;
+    display:flex; align-items:center;
+  }
+  .eye-toggle-sm svg{width:13px; height:13px;}
+  .eye-toggle-sm .eye-closed{display:none;}
+  .eye-toggle-sm.off{color:var(--ivory-dim); opacity:0.55;}
+  .eye-toggle-sm.off .eye-open{display:none;}
+  .eye-toggle-sm.off .eye-closed{display:block;}
 </style>
 </head>
 <body>
@@ -612,38 +627,40 @@
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Lokasi (Opsional)</label>
+        <div class="field-eye-row">
+          <label>Lokasi (Opsional)</label>
+          <button class="eye-toggle-sm on" id="eyeLocation" onclick="toggleEye('showLocationField','eyeLocation')">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+          </button>
+        </div>
         <input id="fLocation" type="text" value="Jakarta, ID" oninput="onFieldChange()">
       </div>
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Tanggal &amp; Waktu (Opsional)</label>
+        <div class="field-eye-row">
+          <label>Tanggal &amp; Waktu (Opsional)</label>
+          <button class="eye-toggle-sm on" id="eyeDateTime" onclick="toggleEye('showDateTime','eyeDateTime')">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+          </button>
+        </div>
         <input id="fDateTime" type="text" value="" oninput="onFieldChange()">
       </div>
+    </div>
+    <div class="field-eye-row">
+      <label style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold-soft);">Meta Data</label>
+      <button class="eye-toggle-sm on" id="eyeMeta" onclick="toggleEye('showMeta','eyeMeta')">
+        <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
+      </button>
     </div>
     <div class="quad">
       <div class="field"><label>mm</label><input id="fMM" type="text" value="35" oninput="onFieldChange()"></div>
       <div class="field"><label>F</label><input id="fF" type="text" value="1.8" oninput="onFieldChange()"></div>
       <div class="field"><label>S</label><input id="fS" type="text" value="1/250" oninput="onFieldChange()"></div>
       <div class="field"><label>ISO</label><input id="fISO" type="text" value="100" oninput="onFieldChange()"></div>
-    </div>
-  </div>
-
-  <div class="toggles">
-    <div class="toggle-row">
-      <div>
-        <div class="t">Tampilkan Watermark</div>
-        <div class="d">Overlay merek &amp; parameter kamera</div>
-      </div>
-      <div class="switch on" id="swWatermark" onclick="toggleSwitch('swWatermark')"></div>
-    </div>
-    <div class="toggle-row">
-      <div>
-        <div class="t">Sertakan Lokasi &amp; Waktu</div>
-        <div class="d">Tanggal, jam, dan koordinat</div>
-      </div>
-      <div class="switch" id="swLocation" onclick="toggleSwitch('swLocation')"></div>
     </div>
   </div>
 
@@ -689,8 +706,9 @@ const state = {
   gps: '-6.2088, 106.8456', elevation: '', weather: '',
   showDocumentation: true,
   position: 'bottom-left',
-  showWatermark: true,
-  showLocation: false,
+  showLocationField: true,
+  showDateTime: true,
+  showMeta: true,
   img: null,
   logoImg: null,
   logos: [],
@@ -847,10 +865,12 @@ function drawWatermark(w,h){
     ctx.textAlign = rightSide ? 'left' : 'right';
     ctx.fillStyle = pal.secondary;
     ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso, specX, cy-barH*0.06);
-    if (state.showLocation){
-      const line2 = [state.location, state.dateTime].filter(Boolean).join('  ·  ');
-      ctx.fillText(line2, specX, cy+barH*0.22);
+    if (state.showMeta){
+      ctx.fillText(state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso, specX, cy-barH*0.06);
+    }
+    const lb = [state.showLocationField && state.location, state.showDateTime && state.dateTime].filter(Boolean).join('  ·  ');
+    if (lb){
+      ctx.fillText(lb, specX, cy+barH*0.22);
     }
     clearShadow();
     return;
@@ -896,14 +916,22 @@ function drawWatermark(w,h){
     ctx.fillStyle = pal.primary;
     ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
     let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
-    ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, lx, ly);
-    ly += rowGap*1.3;
+    if (state.showMeta){
+      ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, lx, ly);
+      ly += rowGap*1.3;
+    }
 
     if (pal.divider){
       ctx.strokeStyle = pal.divider;
       ctx.beginPath(); ctx.moveTo(pad,ly-rowGap*0.7); ctx.lineTo(w-pad,ly-rowGap*0.7); ctx.stroke();
     }
 
+    if (state.showLocationField && state.location){
+      ctx.fillStyle = pal.primary;
+      ctx.font = (w*0.02) + 'px Inter, sans-serif';
+      ctx.fillText(state.location, lx, ly);
+      ly += rowGap*0.85;
+    }
     if (state.showDocumentation){
       ctx.fillStyle = pal.primary;
       ctx.font = (w*0.02) + 'px Inter, sans-serif';
@@ -920,7 +948,7 @@ function drawWatermark(w,h){
       }
     }
 
-    if (state.showLocation && state.dateTime){
+    if (state.showDateTime && state.dateTime){
       ctx.textAlign = rightSide ? 'left' : 'right';
       const dtX = rightSide ? pad : w-pad;
       ctx.fillStyle = pal.secondary;
@@ -1015,31 +1043,34 @@ function drawWatermark(w,h){
       ctx.fillText(state.brand + ' ' + state.device, headX, headY);
     }
 
-    if (state.showLocation){
-      ctx.textAlign = rightSide ? 'left' : 'right';
-      ctx.fillStyle = pal.secondary;
-      ctx.font = (w*0.019) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.dateTime, otherX, headY);
-      if (state.location) ctx.fillText(state.location, otherX, headY+w*0.03);
+    ctx.textAlign = rightSide ? 'left' : 'right';
+    ctx.fillStyle = pal.secondary;
+    ctx.font = (w*0.019) + 'px "IBM Plex Mono", monospace';
+    let dtDrawn = false;
+    if (state.showDateTime && state.dateTime){ ctx.fillText(state.dateTime, otherX, headY); dtDrawn = true; }
+    if (state.showLocationField && state.location){
+      ctx.fillText(state.location, otherX, dtDrawn ? headY+w*0.03 : headY);
     }
 
-    const specs = [
-      ['FOCAL', state.mm+'mm'], ['APERTURE', 'f/'+state.f],
-      ['SHUTTER', state.s+'s'], ['ISO', state.iso]
-    ];
-    const cols = 4;
-    const rowY0 = barY+w*0.145;
-    const colW = (w-pad*2)/cols;
-    specs.forEach(function(sp,i){
-      const x = pad + i*colW;
-      ctx.textAlign = 'left';
-      ctx.fillStyle = pal.muted;
-      ctx.font = (w*0.016) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(sp[0], x, rowY0);
-      ctx.fillStyle = pal.primary;
-      ctx.font = '500 ' + (w*0.024) + 'px Inter, sans-serif';
-      ctx.fillText(sp[1], x, rowY0+w*0.032);
-    });
+    if (state.showMeta){
+      const specs = [
+        ['FOCAL', state.mm+'mm'], ['APERTURE', 'f/'+state.f],
+        ['SHUTTER', state.s+'s'], ['ISO', state.iso]
+      ];
+      const cols = 4;
+      const rowY0 = barY+w*0.145;
+      const colW = (w-pad*2)/cols;
+      specs.forEach(function(sp,i){
+        const x = pad + i*colW;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = pal.muted;
+        ctx.font = (w*0.016) + 'px "IBM Plex Mono", monospace';
+        ctx.fillText(sp[0], x, rowY0);
+        ctx.fillStyle = pal.primary;
+        ctx.font = '500 ' + (w*0.024) + 'px Inter, sans-serif';
+        ctx.fillText(sp[1], x, rowY0+w*0.032);
+      });
+    }
     clearShadow();
     return;
   }
@@ -1069,8 +1100,8 @@ function drawWatermark(w,h){
       clearShadow();
     }
 
-    let line2 = state.dateTime || '';
-    if (state.showLocation && state.location) line2 += (line2?'  ·  ':'') + state.location;
+    let line2 = (state.showDateTime && state.dateTime) ? state.dateTime : '';
+    if (state.showLocationField && state.location) line2 += (line2?'  ·  ':'') + state.location;
     if (line2){
       applyShadow();
       ctx.fillStyle = '#D8D2C4';
@@ -1083,7 +1114,6 @@ function drawWatermark(w,h){
 
 }
 
-function rowStep
 function rowStep(dir, amount){ return dir * amount; }
 
 let comparing = false;
@@ -1093,7 +1123,7 @@ function paint(targetCtx, w, h){
   ctx = targetCtx;
   ctx.clearRect(0,0,w,h);
   if (state.img) drawPhoto(w,h); else drawPlaceholderScene(w,h);
-  if (state.showWatermark && !comparing) drawWatermark(w,h);
+  if (!comparing) drawWatermark(w,h);
   ctx = prev;
 }
 
@@ -1140,16 +1170,6 @@ function onFieldChange(){
   state.elevation = document.getElementById('fElevation').value;
   state.weather = document.getElementById('fWeather').value;
   state.position = document.getElementById('fPosition').value;
-  render();
-  savePrefs();
-}
-
-function toggleSwitch(id){
-  const el = document.getElementById(id);
-  const on = !el.classList.contains('on');
-  el.classList.toggle('on', on);
-  if (id === 'swWatermark') state.showWatermark = on;
-  if (id === 'swLocation') state.showLocation = on;
   render();
   savePrefs();
 }
@@ -1246,8 +1266,9 @@ async function savePrefs(){
       cameraModel: state.cameraModel, city: state.city, country: state.country,
       gps: state.gps, elevation: state.elevation, weather: state.weather,
       position: state.position,
-      showWatermark: state.showWatermark,
-      showLocation: state.showLocation,
+      showLocationField: state.showLocationField,
+      showDateTime: state.showDateTime,
+      showMeta: state.showMeta,
       showPhotographer: state.showPhotographer,
       showDocumentation: state.showDocumentation,
       selectedLogoId: state.selectedLogoId
@@ -1285,8 +1306,9 @@ async function loadPrefs(){
     document.getElementById('fPosition').value = state.position;
     document.getElementById('fBarColor').value = state.barColor;
     document.getElementById('eyeDevice').classList.toggle('off', !state.showDevice);
-    document.getElementById('swWatermark').classList.toggle('on', state.showWatermark);
-    document.getElementById('swLocation').classList.toggle('on', state.showLocation);
+    document.getElementById('eyeLocation').classList.toggle('off', !state.showLocationField);
+    document.getElementById('eyeDateTime').classList.toggle('off', !state.showDateTime);
+    document.getElementById('eyeMeta').classList.toggle('off', !state.showMeta);
     document.getElementById('eyePhotographer').classList.toggle('off', !state.showPhotographer);
     document.getElementById('eyeDocumentation').classList.toggle('off', !state.showDocumentation);
     document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
