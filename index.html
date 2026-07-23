@@ -460,6 +460,50 @@
   }
   .slider-pair{ display:flex; gap:16px; }
   .slider-pair .slider-row{ flex:1; }
+
+  .res-options{ display:flex; flex-direction:column; gap:8px; }
+  .res-opt{
+    display:flex; flex-direction:column;
+    padding:10px 12px;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    cursor:pointer;
+    position:relative;
+  }
+  .res-opt input[type=radio]{
+    position:absolute; top:11px; right:12px;
+    accent-color:var(--gold);
+  }
+  .res-opt.active{ border-color:var(--gold); }
+  .ro-main{ display:flex; align-items:center; gap:8px; padding-right:22px; }
+  .ro-title{ font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500; color:var(--ivory); }
+  .ro-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:0.05em;
+    text-transform:uppercase; color:#1A1508; background:var(--gold);
+    padding:2px 6px; border-radius:6px;
+  }
+  .ro-desc{ font-family:'Inter',sans-serif; font-size:11px; color:var(--ivory-dim); margin-top:2px; }
+
+  .field input[type=number]{
+    width:100%; background:transparent; border:none; outline:none;
+    font-family:'Inter',sans-serif; font-size:13px; color:var(--ivory);
+  }
+
+  .export-estimate{
+    margin-top:14px;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .ee-row{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    color:var(--ivory-dim);
+    padding:3px 0;
+  }
+  .ee-row span:last-child{ color:var(--gold); }
 </style>
 </head>
 <body>
@@ -703,6 +747,75 @@
     </div>
   </div>
 
+  <div class="section-label">
+    <div class="t">Resolusi Export</div>
+  </div>
+  <div class="fields">
+    <div style="font-family:'Inter',sans-serif; font-size:11px; color:var(--ivory-dim); margin:-6px 0 12px;">Pilih kualitas hasil export sesuai kebutuhan.</div>
+    <div class="res-options" id="resOptions">
+      <label class="res-opt active" data-val="original">
+        <input type="radio" name="exportRes" value="original" checked onchange="onResChange(this.value)">
+        <span class="ro-main"><span class="ro-title">Asli (Original)</span><span class="ro-badge">Default</span></span>
+        <span class="ro-desc">Resolusi asli foto tanpa perubahan</span>
+      </label>
+      <label class="res-opt" data-val="high">
+        <input type="radio" name="exportRes" value="high" onchange="onResChange(this.value)">
+        <span class="ro-main"><span class="ro-title">Tinggi (High)</span></span>
+        <span class="ro-desc">±80% dari resolusi asli</span>
+      </label>
+      <label class="res-opt" data-val="medium">
+        <input type="radio" name="exportRes" value="medium" onchange="onResChange(this.value)">
+        <span class="ro-main"><span class="ro-title">Sedang (Medium)</span></span>
+        <span class="ro-desc">±60% — cocok untuk medsos & WhatsApp</span>
+      </label>
+      <label class="res-opt" data-val="low">
+        <input type="radio" name="exportRes" value="low" onchange="onResChange(this.value)">
+        <span class="ro-main"><span class="ro-title">Rendah (Low)</span></span>
+        <span class="ro-desc">±40% — ukuran file jauh lebih kecil</span>
+      </label>
+      <label class="res-opt" data-val="custom">
+        <input type="radio" name="exportRes" value="custom" onchange="onResChange(this.value)">
+        <span class="ro-main"><span class="ro-title">Kustom (Custom)</span></span>
+        <span class="ro-desc">Tentukan sendiri lebar &amp; tinggi</span>
+      </label>
+    </div>
+
+    <div id="customResFields" style="display:none; margin-top:10px;">
+      <div class="field-row">
+        <div class="field"><label>Lebar (px)</label><input id="fCustomW" type="number" min="50" value="1080" oninput="onCustomResInput('w')"></div>
+        <div class="field"><label>Tinggi (px)</label><input id="fCustomH" type="number" min="50" value="1350" oninput="onCustomResInput('h')"></div>
+      </div>
+      <label style="display:flex; align-items:center; gap:7px; font-family:'Inter',sans-serif; font-size:12px; color:var(--ivory-dim); margin-top:2px;">
+        <input type="checkbox" id="fAspectLock" checked onchange="onFieldChange()"> Pertahankan Rasio Aspek
+      </label>
+    </div>
+
+    <div class="section-label" style="padding:16px 0 8px;"><div class="t">Kualitas Export</div></div>
+    <div class="slider-row">
+      <label>Kualitas <span class="v" id="vQuality">100</span>%</label>
+      <input type="range" id="fQuality" min="10" max="100" value="100"
+        oninput="onQualityInput(this.value)" onchange="savePrefs()">
+    </div>
+
+    <div class="section-label" style="padding:10px 0 8px;"><div class="t">Format Export</div></div>
+    <div class="templates" id="formatOptions" style="padding-left:2px; padding-right:2px;">
+      <div class="tchip active" data-format="png" onclick="selectFormat('png')">
+        <div class="swatch" style="font-size:11px;">PNG</div><div class="label">PNG</div>
+      </div>
+      <div class="tchip" data-format="jpg" onclick="selectFormat('jpg')">
+        <div class="swatch" style="font-size:11px;">JPG</div><div class="label">JPG</div>
+      </div>
+      <div class="tchip" data-format="webp" onclick="selectFormat('webp')">
+        <div class="swatch" style="font-size:10px;">WEBP</div><div class="label">WEBP</div>
+      </div>
+    </div>
+
+    <div class="export-estimate">
+      <div class="ee-row"><span>Resolusi Output</span><span id="estRes">—</span></div>
+      <div class="ee-row"><span>Perkiraan Ukuran</span><span id="estSize">—</span></div>
+    </div>
+  </div>
+
   <div class="cta-area">
     <button class="btn-primary" id="btnDownload" onclick="downloadResult()">Terapkan &amp; Unduh</button>
   </div>
@@ -752,6 +865,10 @@ const state = {
   metaX: 0, metaY: 0,
   docX: 0, docY: 0,
   _layoutEditing: false,
+  exportResolution: 'original',
+  exportCustomW: 1080, exportCustomH: 1350,
+  exportFormat: 'png',
+  exportQuality: 100,
   img: null,
   logoImg: null,
   logos: [],
@@ -1219,6 +1336,7 @@ document.getElementById('fileInput').addEventListener('change', function(e){
     img.onload = function(){
       state.img = img;
       document.getElementById('dimCaption').textContent = img.width + '×' + img.height;
+      updateEstimate();
       render();
     };
     img.src = ev.target.result;
@@ -1248,11 +1366,98 @@ canvas.addEventListener('click', function(){
   document.getElementById('fileInput').click();
 });
 
+function computeOutputDims(){
+  const baseW = state.img ? state.img.width : 1080;
+  const baseH = state.img ? state.img.height : 1350;
+  switch(state.exportResolution){
+    case 'high': return {w:Math.round(baseW*0.8), h:Math.round(baseH*0.8)};
+    case 'medium': return {w:Math.round(baseW*0.6), h:Math.round(baseH*0.6)};
+    case 'low': return {w:Math.round(baseW*0.4), h:Math.round(baseH*0.4)};
+    case 'custom': return {w:Math.max(50,state.exportCustomW||baseW), h:Math.max(50,state.exportCustomH||baseH)};
+    default: return {w:baseW, h:baseH};
+  }
+}
+
+function estimateFileSize(w,h,format,quality){
+  const px = w*h;
+  let bpp;
+  if (format === 'png'){
+    bpp = 1.15;
+  } else {
+    const q = Math.max(10, Math.min(100, quality)) / 100;
+    bpp = 0.03 + q*0.35;
+    if (format === 'webp') bpp *= 0.72;
+  }
+  return px * bpp;
+}
+
+function formatBytes(bytes){
+  if (bytes >= 1024*1024) return '≈ ' + (bytes/1024/1024).toFixed(1) + ' MB';
+  return '≈ ' + Math.round(bytes/1024) + ' KB';
+}
+
+function updateEstimate(){
+  const dims = computeOutputDims();
+  document.getElementById('estRes').textContent = dims.w + ' × ' + dims.h + ' px';
+  document.getElementById('estSize').textContent = formatBytes(estimateFileSize(dims.w, dims.h, state.exportFormat, state.exportQuality));
+}
+
+function onResChange(val){
+  state.exportResolution = val;
+  document.querySelectorAll('.res-opt').forEach(function(el){
+    el.classList.toggle('active', el.dataset.val === val);
+  });
+  document.getElementById('customResFields').style.display = val === 'custom' ? 'block' : 'none';
+  if (val === 'custom'){
+    const baseW = state.img ? state.img.width : 1080;
+    const baseH = state.img ? state.img.height : 1350;
+    if (!state.exportCustomW){ state.exportCustomW = baseW; state.exportCustomH = baseH; }
+    document.getElementById('fCustomW').value = state.exportCustomW;
+    document.getElementById('fCustomH').value = state.exportCustomH;
+  }
+  updateEstimate();
+  savePrefs();
+}
+
+function onCustomResInput(dim){
+  const lock = document.getElementById('fAspectLock').checked;
+  const baseW = state.img ? state.img.width : 1080;
+  const baseH = state.img ? state.img.height : 1350;
+  const ratio = baseW / baseH;
+  let wv = parseInt(document.getElementById('fCustomW').value, 10) || baseW;
+  let hv = parseInt(document.getElementById('fCustomH').value, 10) || baseH;
+  if (lock){
+    if (dim === 'w') hv = Math.round(wv / ratio); else wv = Math.round(hv * ratio);
+    document.getElementById('fCustomW').value = wv;
+    document.getElementById('fCustomH').value = hv;
+  }
+  state.exportCustomW = wv; state.exportCustomH = hv;
+  updateEstimate();
+  savePrefs();
+}
+
+function onQualityInput(val){
+  state.exportQuality = parseInt(val, 10);
+  document.getElementById('vQuality').textContent = val;
+  updateEstimate();
+}
+
+function selectFormat(fmt){
+  state.exportFormat = fmt;
+  document.querySelectorAll('#formatOptions .tchip[data-format]').forEach(function(el){
+    el.classList.toggle('active', el.dataset.format === fmt);
+  });
+  const defaults = {png:100, jpg:95, webp:90};
+  state.exportQuality = defaults[fmt];
+  document.getElementById('fQuality').value = state.exportQuality;
+  document.getElementById('vQuality').textContent = state.exportQuality;
+  updateEstimate();
+  savePrefs();
+}
+
 function downloadResult(){
-  const previewW = canvas.width / (window.devicePixelRatio||1);
-  const previewH = canvas.height / (window.devicePixelRatio||1);
-  const outW = state.img ? state.img.width : 1080;
-  const outH = state.img ? state.img.height : Math.round(1080 * previewH/previewW);
+  const dims = computeOutputDims();
+  const outW = dims.w, outH = dims.h;
 
   const off = document.createElement('canvas');
   off.width = outW; off.height = outH;
@@ -1261,9 +1466,16 @@ function downloadResult(){
   paint(offCtx, outW, outH);
   isExporting = false;
 
+  const mimeMap = {png:'image/png', jpg:'image/jpeg', webp:'image/webp'};
+  const extMap = {png:'png', jpg:'jpg', webp:'webp'};
+  const mime = mimeMap[state.exportFormat] || 'image/png';
+  const ext = extMap[state.exportFormat] || 'png';
+  const q = state.exportQuality / 100;
+  const dataUrl = state.exportFormat === 'png' ? off.toDataURL(mime) : off.toDataURL(mime, q);
+
   const link = document.createElement('a');
-  link.download = 'atelier-watermark-' + outW + 'x' + outH + '.png';
-  link.href = off.toDataURL('image/png');
+  link.download = 'atelier-watermark-' + outW + 'x' + outH + '.' + ext;
+  link.href = dataUrl;
   link.click();
 }
 
@@ -1288,6 +1500,7 @@ window.addEventListener('load', async function(){
   await loadPrefs();
   await loadLogos();
   restoreSelectedLogo();
+  updateEstimate();
   fitCanvas();
 });
 
@@ -1304,6 +1517,9 @@ async function savePrefs(){
       deviceX: state.deviceX, deviceY: state.deviceY,
       metaX: state.metaX, metaY: state.metaY,
       docX: state.docX, docY: state.docY,
+      exportResolution: state.exportResolution,
+      exportCustomW: state.exportCustomW, exportCustomH: state.exportCustomH,
+      exportFormat: state.exportFormat, exportQuality: state.exportQuality,
       cameraModel: state.cameraModel, city: state.city, country: state.country,
       gps: state.gps, elevation: state.elevation, weather: state.weather,
       position: state.position,
@@ -1343,6 +1559,18 @@ async function loadPrefs(){
     document.getElementById('fMetaY').value = state.metaY; document.getElementById('vMetaY').textContent = state.metaY;
     document.getElementById('fDocX').value = state.docX; document.getElementById('vDocX').textContent = state.docX;
     document.getElementById('fDocY').value = state.docY; document.getElementById('vDocY').textContent = state.docY;
+    document.querySelectorAll('.res-opt').forEach(function(el){
+      el.classList.toggle('active', el.dataset.val === state.exportResolution);
+      const r = el.querySelector('input[type=radio]'); if (r) r.checked = (el.dataset.val === state.exportResolution);
+    });
+    document.getElementById('customResFields').style.display = state.exportResolution === 'custom' ? 'block' : 'none';
+    document.getElementById('fCustomW').value = state.exportCustomW;
+    document.getElementById('fCustomH').value = state.exportCustomH;
+    document.getElementById('fQuality').value = state.exportQuality;
+    document.getElementById('vQuality').textContent = state.exportQuality;
+    document.querySelectorAll('#formatOptions .tchip[data-format]').forEach(function(el){
+      el.classList.toggle('active', el.dataset.format === state.exportFormat);
+    });
     document.getElementById('fCameraModel').value = state.cameraModel;
     document.getElementById('fCity').value = state.city;
     document.getElementById('fCountry').value = state.country;
