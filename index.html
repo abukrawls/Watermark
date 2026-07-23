@@ -578,6 +578,7 @@
           oninput="onSliderInput('docY','vDocY',this.value)" onchange="savePrefs()"
           onfocus="setEditing(true)" onblur="setEditing(false)"></div>
     </div>
+    <div class="modal-close" style="text-align:center; margin-top:2px;" onclick="resetLayout()">RESET LAYOUT</div>
   </div>
 
   <div class="section-label">
@@ -939,8 +940,9 @@ function drawWatermark(w,h){
       return { x: Math.max(minX, Math.min(maxX, x)), y: Math.max(minY, Math.min(maxY, y)) };
     };
 
-    const lr = barH*0.26;
-    const logoP = clampPos(innerPad + state.logoX*scale, barY+barH/2-lr + state.logoY*scale, lr*2, lr*2);
+    // LOGO + DEVICE — kiri atas
+    const lr = barH*0.24;
+    const logoP = clampPos(innerPad + state.logoX*scale, barY+barH*0.22-lr + state.logoY*scale, lr*2, lr*2);
     const logoCx = logoP.x+lr, logoCy = logoP.y+lr;
     if (state.showDevice){
       if (!drawLogoCircle(logoCx, logoCy, lr)){
@@ -954,8 +956,8 @@ function drawWatermark(w,h){
       }
     }
 
-    const devBoxW = w*0.42, devBoxH = barH*0.34;
-    const devP = clampPos(innerPad + lr*2.4 + state.deviceX*scale, barY+barH*0.16 + state.deviceY*scale, devBoxW, devBoxH);
+    const devBoxW = w*0.4, devBoxH = barH*0.4;
+    const devP = clampPos(innerPad + lr*2.3 + state.deviceX*scale, barY+barH*0.14 + state.deviceY*scale, devBoxW, devBoxH);
     if (state.showDevice){
       ctx.textAlign = 'left';
       ctx.fillStyle = pal.primary;
@@ -968,35 +970,48 @@ function drawWatermark(w,h){
       }
     }
 
-    const metaBoxW = w*0.5, metaBoxH = barH*0.16;
-    const metaP = clampPos(innerPad + state.metaX*scale, barY+barH*0.56 + state.metaY*scale, metaBoxW, metaBoxH);
+    // METADATA — kanan atas, rata kanan
+    const metaBoxW = w*0.4, metaBoxH = barH*0.34;
+    const metaP = clampPos(w-innerPad-metaBoxW + state.metaX*scale, barY+barH*0.16 + state.metaY*scale, metaBoxW, metaBoxH);
     if (state.showMeta){
-      let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
-      ctx.textAlign = 'left';
+      const metaRightX = metaP.x + metaBoxW;
+      ctx.textAlign = 'right';
       ctx.fillStyle = pal.primary;
-      ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, metaP.x, metaP.y+w*0.016);
+      ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso, metaRightX, metaP.y+w*0.02);
+      ctx.fillStyle = pal.muted;
+      ctx.font = (w*0.018) + 'px "IBM Plex Mono", monospace';
+      let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
+      ctx.fillText(state.mm+'mm  ·  '+resTxt, metaRightX, metaP.y+w*0.045);
     }
 
-    const docBoxW = w*0.55, docBoxH = barH*0.34;
-    const docP = clampPos(innerPad + state.docX*scale, barY+barH*0.72 + state.docY*scale, docBoxW, docBoxH);
-    let dy = docP.y+w*0.016;
+    // DOKUMENTASI — bawah, kiri: kota/negara/lokasi, kanan: tanggal/jam/gps
+    const docBoxW = w-innerPad*2, docBoxH = barH*0.4;
+    const docP = clampPos(innerPad + state.docX*scale, barY+barH*0.58 + state.docY*scale, docBoxW, docBoxH);
+
+    let dyL = docP.y+w*0.018;
     ctx.textAlign = 'left';
     if (state.showLocationField && state.location){
       ctx.fillStyle = pal.primary; ctx.font = (w*0.02) + 'px Inter, sans-serif';
-      ctx.fillText(state.location, docP.x, dy); dy += w*0.026;
+      ctx.fillText(state.location, docP.x, dyL); dyL += w*0.026;
     }
     if (state.showDocumentation){
       let locLine = [state.city, state.country].filter(Boolean).join(', ');
-      if (locLine){ ctx.fillStyle = pal.primary; ctx.font = (w*0.02)+'px Inter, sans-serif'; ctx.fillText(locLine, docP.x, dy); dy += w*0.026; }
-      ctx.fillStyle = pal.muted; ctx.font=(w*0.017)+'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.gps, docP.x, dy); dy += w*0.022;
-      let extra=[state.elevation, state.weather].filter(Boolean).join('   ·   ');
-      if (extra){ ctx.fillStyle=pal.secondary; ctx.fillText(extra, docP.x, dy); dy += w*0.022; }
+      if (locLine){ ctx.fillStyle = pal.primary; ctx.font = (w*0.02)+'px Inter, sans-serif'; ctx.fillText(locLine, docP.x, dyL); dyL += w*0.026; }
+      let extra = [state.elevation, state.weather].filter(Boolean).join('   ·   ');
+      if (extra){ ctx.fillStyle = pal.secondary; ctx.font=(w*0.017)+'px "IBM Plex Mono", monospace'; ctx.fillText(extra, docP.x, dyL); dyL += w*0.022; }
     }
+
+    let dyR = docP.y+w*0.018;
+    const docRightX = docP.x + docBoxW;
+    ctx.textAlign = 'right';
     if (state.showDateTime && state.dateTime){
-      ctx.fillStyle = pal.secondary; ctx.font=(w*0.018)+'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.dateTime, docP.x, dy);
+      ctx.fillStyle = pal.primary; ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.dateTime, docRightX, dyR); dyR += w*0.026;
+    }
+    if (state.showDocumentation && state.gps){
+      ctx.fillStyle = pal.muted; ctx.font=(w*0.017)+'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.gps, docRightX, dyR);
     }
 
     clearShadow();
@@ -1145,6 +1160,20 @@ function selectTemplate(key){
   const showSesuaikan = key === 'full';
   document.getElementById('sesuaikanLabel').style.display = showSesuaikan ? 'flex' : 'none';
   document.getElementById('sesuaikanFields').style.display = showSesuaikan ? 'block' : 'none';
+  render();
+  savePrefs();
+}
+
+function resetLayout(){
+  state.barHeight = 120; state.logoX = 0; state.logoY = 0;
+  state.deviceX = 0; state.deviceY = 0;
+  state.metaX = 0; state.metaY = 0;
+  state.docX = 0; state.docY = 0;
+  ['BarHeight','LogoX','LogoY','DeviceX','DeviceY','MetaX','MetaY','DocX','DocY'].forEach(function(k){
+    const key = k.charAt(0).toLowerCase()+k.slice(1);
+    document.getElementById('f'+k).value = state[key];
+    document.getElementById('v'+k).textContent = state[key];
+  });
   render();
   savePrefs();
 }
