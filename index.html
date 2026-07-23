@@ -440,6 +440,26 @@
   .eye-toggle-sm.off{color:var(--ivory-dim); opacity:0.55;}
   .eye-toggle-sm.off .eye-open{display:none;}
   .eye-toggle-sm.off .eye-closed{display:block;}
+
+  .slider-row{ margin-bottom:14px; }
+  .slider-row label{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace; font-size:10px;
+    letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--gold-soft); margin-bottom:6px;
+  }
+  .slider-row label .v{ color:var(--gold); }
+  .slider-row input[type=range]{
+    width:100%; height:2px;
+    -webkit-appearance:none; appearance:none;
+    background:var(--hairline); border-radius:2px; outline:none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+    background:var(--gold); cursor:pointer; border:2px solid #14120F;
+  }
+  .slider-pair{ display:flex; gap:16px; }
+  .slider-pair .slider-row{ flex:1; }
 </style>
 </head>
 <body>
@@ -488,10 +508,6 @@
       <div class="swatch" style="font-size:11px; letter-spacing:0.02em;">EXIF</div>
       <div class="label">Pro EXIF</div>
     </div>
-    <div class="tchip" data-key="signature" onclick="selectTemplate('signature')">
-      <div class="swatch" style="font-style:italic;">S</div>
-      <div class="label">Signature</div>
-    </div>
     <div class="tchip" data-key="full" onclick="selectTemplate('full')">
       <div class="swatch" style="font-size:10px;">FULL</div>
       <div class="label">Full Info</div>
@@ -512,33 +528,55 @@
     </div>
   </div>
 
-  <div class="section-label">
-    <div class="t">Identitas Fotografer</div>
-    <button class="eye-toggle on" id="eyePhotographer" onclick="toggleEye('showPhotographer','eyePhotographer')">
-      <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-      <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18M10.6 10.6a3 3 0 004.24 4.24M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M17.5 17.3C20 15.7 22 12 22 12s-1.2-2.1-3.2-3.9"/></svg>
-    </button>
+  <div class="section-label" id="sesuaikanLabel" style="display:none;">
+    <div class="t">Sesuaikan</div>
   </div>
-  <div class="fields">
-    <div class="field-row">
-      <div class="field">
-        <label>Nama Fotografer</label>
-        <input id="fPhotographer" type="text" value="Rangga Aditya" oninput="onFieldChange()">
-      </div>
-      <div class="field">
-        <label>Copyright</label>
-        <input id="fCopyright" type="text" value="© 2026" oninput="onFieldChange()">
-      </div>
+  <div class="fields" id="sesuaikanFields" style="display:none;">
+    <div class="slider-row">
+      <label>Tinggi Bar <span class="v" id="vBarHeight">120</span>px</label>
+      <input type="range" id="fBarHeight" min="40" max="350" value="120"
+        oninput="onSliderInput('barHeight','vBarHeight',this.value)" onchange="savePrefs()"
+        onfocus="setEditing(true)" onblur="setEditing(false)">
     </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Website (Opsional)</label>
-        <input id="fWebsite" type="text" value="" placeholder="namamu.com" oninput="onFieldChange()">
-      </div>
-      <div class="field">
-        <label>Media Sosial (Opsional)</label>
-        <input id="fSocial" type="text" value="" placeholder="@namamu" oninput="onFieldChange()">
-      </div>
+    <div class="slider-pair">
+      <div class="slider-row"><label>Logo X <span class="v" id="vLogoX">0</span></label>
+        <input type="range" id="fLogoX" min="-500" max="500" value="0"
+          oninput="onSliderInput('logoX','vLogoX',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      <div class="slider-row"><label>Logo Y <span class="v" id="vLogoY">0</span></label>
+        <input type="range" id="fLogoY" min="-500" max="500" value="0"
+          oninput="onSliderInput('logoY','vLogoY',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+    </div>
+    <div class="slider-pair">
+      <div class="slider-row"><label>Perangkat X <span class="v" id="vDeviceX">0</span></label>
+        <input type="range" id="fDeviceX" min="-500" max="500" value="0"
+          oninput="onSliderInput('deviceX','vDeviceX',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      <div class="slider-row"><label>Perangkat Y <span class="v" id="vDeviceY">0</span></label>
+        <input type="range" id="fDeviceY" min="-500" max="500" value="0"
+          oninput="onSliderInput('deviceY','vDeviceY',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+    </div>
+    <div class="slider-pair">
+      <div class="slider-row"><label>Metadata X <span class="v" id="vMetaX">0</span></label>
+        <input type="range" id="fMetaX" min="-500" max="500" value="0"
+          oninput="onSliderInput('metaX','vMetaX',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      <div class="slider-row"><label>Metadata Y <span class="v" id="vMetaY">0</span></label>
+        <input type="range" id="fMetaY" min="-500" max="500" value="0"
+          oninput="onSliderInput('metaY','vMetaY',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+    </div>
+    <div class="slider-pair">
+      <div class="slider-row"><label>Dokumentasi X <span class="v" id="vDocX">0</span></label>
+        <input type="range" id="fDocX" min="-500" max="500" value="0"
+          oninput="onSliderInput('docX','vDocX',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      <div class="slider-row"><label>Dokumentasi Y <span class="v" id="vDocY">0</span></label>
+        <input type="range" id="fDocY" min="-500" max="500" value="0"
+          oninput="onSliderInput('docY','vDocY',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
     </div>
   </div>
 
@@ -700,8 +738,6 @@ const state = {
   showDevice: true,
   mm: '35', f: '1.8', s: '1/250', iso: '100',
   dateTime: '',
-  photographer: 'Rangga Aditya', copyright: '© 2026', website: '', social: '',
-  showPhotographer: true,
   cameraModel: 'Atelier ILC-7', city: 'Jakarta', country: 'Indonesia',
   gps: '-6.2088, 106.8456', elevation: '', weather: '',
   showDocumentation: true,
@@ -709,6 +745,12 @@ const state = {
   showLocationField: true,
   showDateTime: true,
   showMeta: true,
+  barHeight: 120,
+  logoX: 0, logoY: 0,
+  deviceX: 0, deviceY: 0,
+  metaX: 0, metaY: 0,
+  docX: 0, docY: 0,
+  _layoutEditing: false,
   img: null,
   logoImg: null,
   logos: [],
@@ -877,144 +919,99 @@ function drawWatermark(w,h){
   }
 
   if (state.template === 'full'){
-    const barH = h*0.34;
-    const barY = top ? 0 : h-barH;
+    const REF = 1080;
+    const scale = w / REF;
+    const barH = Math.max(40, Math.min(350, state.barHeight)) * scale;
+    const barY = top ? 0 : h - barH;
     const pal = barPalette(state.barColor);
     drawBarBg(w, barY, barH, top, pal);
     if (pal.shadow) applyShadow();
     if (pal.divider){
-      ctx.strokeStyle = pal.divider;
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = pal.divider; ctx.lineWidth = 1;
       const lineY = top ? barY+barH : barY;
       ctx.beginPath(); ctx.moveTo(0,lineY); ctx.lineTo(w,lineY); ctx.stroke();
     }
 
-    const lx = rightSide ? w-pad : pad;
-    const ta = rightSide ? 'right' : 'left';
-    let ly = barY+w*0.045;
-    const rowGap = w*0.034;
+    const innerPad = Math.max(pad*0.5, barH*0.08);
+    const clampPos = (x,y,boxW,boxH) => {
+      const minX = innerPad, maxX = Math.max(minX, w-innerPad-boxW);
+      const minY = barY+innerPad, maxY = Math.max(minY, barY+barH-innerPad-boxH);
+      return { x: Math.max(minX, Math.min(maxX, x)), y: Math.max(minY, Math.min(maxY, y)) };
+    };
 
+    const lr = barH*0.26;
+    const logoP = clampPos(innerPad + state.logoX*scale, barY+barH/2-lr + state.logoY*scale, lr*2, lr*2);
+    const logoCx = logoP.x+lr, logoCy = logoP.y+lr;
     if (state.showDevice){
-      const hasLogo = !!state.logoImg;
-      const lr = w*0.028;
-      const logoCx = rightSide ? lx-lr : lx+lr;
-      if (hasLogo) drawLogoCircle(logoCx, ly-lr*0.7, lr);
-      const textX = hasLogo ? (rightSide ? lx-lr*2-w*0.015 : lx+lr*2+w*0.015) : lx;
-      ctx.textAlign = ta;
+      if (!drawLogoCircle(logoCx, logoCy, lr)){
+        ctx.beginPath(); ctx.arc(logoCx,logoCy,lr,0,Math.PI*2);
+        ctx.strokeStyle = pal.divider || 'rgba(150,130,90,0.4)'; ctx.stroke();
+        ctx.fillStyle = pal.muted;
+        ctx.font = '600 ' + (lr*0.9) + 'px Fraunces, serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(state.brand.charAt(0), logoCx, logoCy);
+        ctx.textBaseline='alphabetic';
+      }
+    }
+
+    const devBoxW = w*0.42, devBoxH = barH*0.34;
+    const devP = clampPos(innerPad + lr*2.4 + state.deviceX*scale, barY+barH*0.16 + state.deviceY*scale, devBoxW, devBoxH);
+    if (state.showDevice){
+      ctx.textAlign = 'left';
       ctx.fillStyle = pal.primary;
       ctx.font = '600 ' + (w*0.03) + 'px Fraunces, serif';
-      ctx.fillText(state.brand + '  ' + state.device, textX, ly);
+      ctx.fillText(state.brand + '  ' + state.device, devP.x, devP.y+w*0.024);
       if (state.showDocumentation){
         ctx.fillStyle = pal.muted;
         ctx.font = (w*0.017) + 'px "IBM Plex Mono", monospace';
-        ctx.fillText(state.cameraModel, textX, ly+rowGap*0.75);
+        ctx.fillText(state.cameraModel, devP.x, devP.y+w*0.05);
       }
     }
-    ly += rowGap*1.7;
 
-    ctx.textAlign = 'left';
-    ctx.fillStyle = pal.primary;
-    ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
-    let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
+    const metaBoxW = w*0.5, metaBoxH = barH*0.16;
+    const metaP = clampPos(innerPad + state.metaX*scale, barY+barH*0.56 + state.metaY*scale, metaBoxW, metaBoxH);
     if (state.showMeta){
-      ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, lx, ly);
-      ly += rowGap*1.3;
-    }
-
-    if (pal.divider){
-      ctx.strokeStyle = pal.divider;
-      ctx.beginPath(); ctx.moveTo(pad,ly-rowGap*0.7); ctx.lineTo(w-pad,ly-rowGap*0.7); ctx.stroke();
-    }
-
-    if (state.showLocationField && state.location){
+      let resTxt = state.img ? (state.img.width+'×'+state.img.height) : '—';
+      ctx.textAlign = 'left';
       ctx.fillStyle = pal.primary;
-      ctx.font = (w*0.02) + 'px Inter, sans-serif';
-      ctx.fillText(state.location, lx, ly);
-      ly += rowGap*0.85;
+      ctx.font = (w*0.02) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText('f/'+state.f+'  '+state.s+'s  ISO'+state.iso+'  '+state.mm+'mm  '+resTxt, metaP.x, metaP.y+w*0.016);
+    }
+
+    const docBoxW = w*0.55, docBoxH = barH*0.34;
+    const docP = clampPos(innerPad + state.docX*scale, barY+barH*0.72 + state.docY*scale, docBoxW, docBoxH);
+    let dy = docP.y+w*0.016;
+    ctx.textAlign = 'left';
+    if (state.showLocationField && state.location){
+      ctx.fillStyle = pal.primary; ctx.font = (w*0.02) + 'px Inter, sans-serif';
+      ctx.fillText(state.location, docP.x, dy); dy += w*0.026;
     }
     if (state.showDocumentation){
-      ctx.fillStyle = pal.primary;
-      ctx.font = (w*0.02) + 'px Inter, sans-serif';
       let locLine = [state.city, state.country].filter(Boolean).join(', ');
-      if (locLine){ ctx.fillText(locLine, lx, ly); ly += rowGap*0.85; }
-      ctx.fillStyle = pal.muted;
-      ctx.font = (w*0.017) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.gps, lx, ly);
-      let extra = [state.elevation, state.weather].filter(Boolean).join('   ·   ');
-      if (extra){
-        ly += rowGap*0.75;
-        ctx.fillStyle = pal.secondary;
-        ctx.fillText(extra, lx, ly);
-      }
+      if (locLine){ ctx.fillStyle = pal.primary; ctx.font = (w*0.02)+'px Inter, sans-serif'; ctx.fillText(locLine, docP.x, dy); dy += w*0.026; }
+      ctx.fillStyle = pal.muted; ctx.font=(w*0.017)+'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.gps, docP.x, dy); dy += w*0.022;
+      let extra=[state.elevation, state.weather].filter(Boolean).join('   ·   ');
+      if (extra){ ctx.fillStyle=pal.secondary; ctx.fillText(extra, docP.x, dy); dy += w*0.022; }
     }
-
     if (state.showDateTime && state.dateTime){
-      ctx.textAlign = rightSide ? 'left' : 'right';
-      const dtX = rightSide ? pad : w-pad;
-      ctx.fillStyle = pal.secondary;
-      ctx.font = (w*0.018) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.dateTime, dtX, barY+w*0.045);
+      ctx.fillStyle = pal.secondary; ctx.font=(w*0.018)+'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.dateTime, docP.x, dy);
     }
+
     clearShadow();
-    return;
-  }
 
-  if (state.template === 'signature'){
-    if (!state.showPhotographer) return;
-    const cx = align==='left' ? pad+w*0.2 : align==='right' ? w-pad-w*0.2 : w/2;
-    const ta = align==='left' ? 'left' : align==='right' ? 'right' : 'center';
-    ctx.textAlign = ta;
-    let cy = top ? pad+w*0.09 : h - pad - w*0.02;
-    const dir = top ? 1 : -1;
-
-    const line2 = [state.website, state.social].filter(Boolean).join('   ·   ');
-    if (top){
-      ctx.fillStyle = '#F3ECDD';
-      ctx.font = 'italic 500 ' + (w*0.05) + 'px Fraunces, serif';
-      ctx.fillText(state.photographer, cx, cy);
-      const tw0 = ctx.measureText(state.photographer).width;
-      ctx.strokeStyle = 'rgba(199,166,97,0.7)'; ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(cx-tw0/2, cy+w*0.012);
-      ctx.quadraticCurveTo(cx, cy+w*0.02, cx+tw0/2, cy+w*0.012);
-      ctx.stroke();
-      cy += w*0.05;
-      ctx.fillStyle = 'rgba(184,175,158,0.85)';
-      ctx.font = (w*0.018) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.copyright + '  ' + state.photographer, cx, cy);
-      if (line2){
-        cy += w*0.032;
-        ctx.fillStyle = 'rgba(184,175,158,0.85)';
-        ctx.font = (w*0.019) + 'px "IBM Plex Mono", monospace';
-        ctx.fillText(line2, cx, cy);
-      }
-      return;
+    if (state._layoutEditing && !isExporting){
+      ctx.save();
+      ctx.setLineDash([4,4]);
+      ctx.strokeStyle = 'rgba(199,166,97,0.9)'; ctx.lineWidth = 1;
+      ctx.strokeRect(0.5, barY+0.5, w-1, barH-1);
+      ctx.strokeRect(logoP.x+0.5, logoP.y+0.5, lr*2-1, lr*2-1);
+      ctx.strokeRect(devP.x+0.5, devP.y+0.5, devBoxW-1, devBoxH-1);
+      ctx.strokeRect(metaP.x+0.5, metaP.y+0.5, metaBoxW-1, metaBoxH-1);
+      ctx.strokeRect(docP.x+0.5, docP.y+0.5, docBoxW-1, docBoxH-1);
+      ctx.restore();
     }
-
-    if (line2){
-      ctx.fillStyle = 'rgba(184,175,158,0.85)';
-      ctx.font = (w*0.019) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(line2, cx, cy);
-      cy += rowStep(dir,w*0.032);
-    }
-    ctx.fillStyle = 'rgba(184,175,158,0.85)';
-    ctx.font = (w*0.018) + 'px "IBM Plex Mono", monospace';
-    ctx.fillText(state.copyright + '  ' + state.photographer, cx, cy);
-    cy += rowStep(dir,w*0.05);
-
-    const r = w*0.02;
-    const logoX = ta==='right' ? cx+w*0.16 : cx-w*0.16;
-    if (state.logoImg) drawLogoCircle(logoX, cy-r*0.6, r);
-    ctx.fillStyle = '#F3ECDD';
-    ctx.font = 'italic 500 ' + (w*0.05) + 'px Fraunces, serif';
-    ctx.fillText(state.photographer, cx, cy);
-    const tw = ctx.measureText(state.photographer).width;
-    ctx.strokeStyle = 'rgba(199,166,97,0.7)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(cx-tw/2, cy+w*0.012);
-    ctx.quadraticCurveTo(cx, cy+w*0.02, cx+tw/2, cy+w*0.012);
-    ctx.stroke();
     return;
   }
 
@@ -1114,9 +1111,9 @@ function drawWatermark(w,h){
 
 }
 
-function rowStep(dir, amount){ return dir * amount; }
 
 let comparing = false;
+let isExporting = false;
 
 function paint(targetCtx, w, h){
   const prev = ctx;
@@ -1145,8 +1142,22 @@ function selectTemplate(key){
   document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
     el.classList.toggle('active', el.dataset.key === key);
   });
+  const showSesuaikan = key === 'full';
+  document.getElementById('sesuaikanLabel').style.display = showSesuaikan ? 'flex' : 'none';
+  document.getElementById('sesuaikanFields').style.display = showSesuaikan ? 'block' : 'none';
   render();
   savePrefs();
+}
+
+function onSliderInput(key, valId, val){
+  state[key] = parseInt(val, 10);
+  document.getElementById(valId).textContent = val;
+  render();
+}
+
+function setEditing(on){
+  state._layoutEditing = on;
+  render();
 }
 
 function onFieldChange(){
@@ -1159,10 +1170,6 @@ function onFieldChange(){
   state.s = document.getElementById('fS').value;
   state.iso = document.getElementById('fISO').value;
   state.dateTime = document.getElementById('fDateTime').value;
-  state.photographer = document.getElementById('fPhotographer').value || 'Fotografer';
-  state.copyright = document.getElementById('fCopyright').value;
-  state.website = document.getElementById('fWebsite').value;
-  state.social = document.getElementById('fSocial').value;
   state.cameraModel = document.getElementById('fCameraModel').value;
   state.city = document.getElementById('fCity').value;
   state.country = document.getElementById('fCountry').value;
@@ -1221,7 +1228,9 @@ function downloadResult(){
   const off = document.createElement('canvas');
   off.width = outW; off.height = outH;
   const offCtx = off.getContext('2d');
+  isExporting = true;
   paint(offCtx, outW, outH);
+  isExporting = false;
 
   const link = document.createElement('a');
   link.download = 'atelier-watermark-' + outW + 'x' + outH + '.png';
@@ -1261,15 +1270,17 @@ async function savePrefs(){
       device: state.device, barColor: state.barColor, showDevice: state.showDevice,
       mm: state.mm, f: state.f, s: state.s, iso: state.iso,
       dateTime: state.dateTime,
-      photographer: state.photographer, copyright: state.copyright,
-      website: state.website, social: state.social,
+      barHeight: state.barHeight,
+      logoX: state.logoX, logoY: state.logoY,
+      deviceX: state.deviceX, deviceY: state.deviceY,
+      metaX: state.metaX, metaY: state.metaY,
+      docX: state.docX, docY: state.docY,
       cameraModel: state.cameraModel, city: state.city, country: state.country,
       gps: state.gps, elevation: state.elevation, weather: state.weather,
       position: state.position,
       showLocationField: state.showLocationField,
       showDateTime: state.showDateTime,
       showMeta: state.showMeta,
-      showPhotographer: state.showPhotographer,
       showDocumentation: state.showDocumentation,
       selectedLogoId: state.selectedLogoId
     }), false);
@@ -1282,7 +1293,7 @@ async function loadPrefs(){
     if (!res) return;
     const p = JSON.parse(res.value);
     Object.assign(state, p);
-    const validTemplates = ['whitebar','minimal','exif','signature','full'];
+    const validTemplates = ['whitebar','minimal','exif','full'];
     if (!validTemplates.includes(state.template)) state.template = 'whitebar';
     if (!state.dateTime) state.dateTime = new Date().toLocaleDateString('id-ID') + '  ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('fBrand').value = state.brand;
@@ -1293,10 +1304,16 @@ async function loadPrefs(){
     document.getElementById('fF').value = state.f;
     document.getElementById('fS').value = state.s;
     document.getElementById('fISO').value = state.iso;
-    document.getElementById('fPhotographer').value = state.photographer;
-    document.getElementById('fCopyright').value = state.copyright;
-    document.getElementById('fWebsite').value = state.website;
-    document.getElementById('fSocial').value = state.social;
+    document.getElementById('fBarHeight').value = state.barHeight;
+    document.getElementById('vBarHeight').textContent = state.barHeight;
+    document.getElementById('fLogoX').value = state.logoX; document.getElementById('vLogoX').textContent = state.logoX;
+    document.getElementById('fLogoY').value = state.logoY; document.getElementById('vLogoY').textContent = state.logoY;
+    document.getElementById('fDeviceX').value = state.deviceX; document.getElementById('vDeviceX').textContent = state.deviceX;
+    document.getElementById('fDeviceY').value = state.deviceY; document.getElementById('vDeviceY').textContent = state.deviceY;
+    document.getElementById('fMetaX').value = state.metaX; document.getElementById('vMetaX').textContent = state.metaX;
+    document.getElementById('fMetaY').value = state.metaY; document.getElementById('vMetaY').textContent = state.metaY;
+    document.getElementById('fDocX').value = state.docX; document.getElementById('vDocX').textContent = state.docX;
+    document.getElementById('fDocY').value = state.docY; document.getElementById('vDocY').textContent = state.docY;
     document.getElementById('fCameraModel').value = state.cameraModel;
     document.getElementById('fCity').value = state.city;
     document.getElementById('fCountry').value = state.country;
@@ -1309,11 +1326,13 @@ async function loadPrefs(){
     document.getElementById('eyeLocation').classList.toggle('off', !state.showLocationField);
     document.getElementById('eyeDateTime').classList.toggle('off', !state.showDateTime);
     document.getElementById('eyeMeta').classList.toggle('off', !state.showMeta);
-    document.getElementById('eyePhotographer').classList.toggle('off', !state.showPhotographer);
     document.getElementById('eyeDocumentation').classList.toggle('off', !state.showDocumentation);
     document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
       el.classList.toggle('active', el.dataset.key === state.template);
     });
+    const showSesuaikan = state.template === 'full';
+    document.getElementById('sesuaikanLabel').style.display = showSesuaikan ? 'flex' : 'none';
+    document.getElementById('sesuaikanFields').style.display = showSesuaikan ? 'block' : 'none';
   }catch(e){ /* belum ada preferensi tersimpan */ }
   if (!state.dateTime) state.dateTime = new Date().toLocaleDateString('id-ID') + '  ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 }
