@@ -460,30 +460,35 @@
   }
   .slider-pair{ display:flex; gap:16px; }
   .slider-pair .slider-row{ flex:1; }
+  .sesuaikan-group{ margin-bottom:16px; }
+  .group-title{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:8px;
+  }
 
-  .res-options{ display:flex; flex-direction:column; gap:8px; }
-  .res-opt{
-    display:flex; flex-direction:column;
-    padding:10px 12px;
+  .res-desc{
+    font-family:'Inter',sans-serif; font-size:11.5px; line-height:1.5;
+    color:var(--ivory-dim);
+    margin-top:6px;
+  }
+
+  .format-row{ display:flex; gap:10px; }
+  .format-btn{
+    flex:1;
+    padding:12px 0;
     background:var(--panel-2);
     border:1px solid var(--hairline);
     border-radius:10px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em;
+    color:var(--ivory-dim);
     cursor:pointer;
-    position:relative;
   }
-  .res-opt input[type=radio]{
-    position:absolute; top:11px; right:12px;
-    accent-color:var(--gold);
+  .format-btn.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(199,166,97,0.1);
   }
-  .res-opt.active{ border-color:var(--gold); }
-  .ro-main{ display:flex; align-items:center; gap:8px; padding-right:22px; }
-  .ro-title{ font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500; color:var(--ivory); }
-  .ro-badge{
-    font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:0.05em;
-    text-transform:uppercase; color:#1A1508; background:var(--gold);
-    padding:2px 6px; border-radius:6px;
-  }
-  .ro-desc{ font-family:'Inter',sans-serif; font-size:11px; color:var(--ivory-dim); margin-top:2px; }
 
   .field input[type=number]{
     width:100%; background:transparent; border:none; outline:none;
@@ -556,6 +561,10 @@
       <div class="swatch" style="font-size:10px;">FULL</div>
       <div class="label">Full Info</div>
     </div>
+    <div class="tchip" id="chipSesuaikan" onclick="toggleSesuaikan()">
+      <div class="swatch">⚙</div>
+      <div class="label">Sesuaikan</div>
+    </div>
     <div class="tchip add" onclick="openLogoPicker()">
       <div class="swatch">+</div>
       <div class="label">Logo</div>
@@ -573,57 +582,79 @@
   </div>
 
   <div class="section-label" id="sesuaikanLabel" style="display:none;">
-    <div class="t">Sesuaikan</div>
+    <div class="t">Sesuaikan — <span id="sesuaikanTplName">White Bar</span></div>
   </div>
   <div class="fields" id="sesuaikanFields" style="display:none;">
-    <div class="slider-row">
-      <label>Tinggi Bar <span class="v" id="vBarHeight">120</span>px</label>
-      <input type="range" id="fBarHeight" min="40" max="350" value="120"
-        oninput="onSliderInput('barHeight','vBarHeight',this.value)" onchange="savePrefs()"
-        onfocus="setEditing(true)" onblur="setEditing(false)">
+
+    <div class="sesuaikan-group" data-group="layout">
+      <div class="group-title">Layout</div>
+      <div class="slider-row">
+        <label>Tinggi Bar <span class="v" id="vBarHeight">120</span>px</label>
+        <input type="range" id="fBarHeight" min="40" max="350" value="120"
+          oninput="onSliderInput('barHeight','vBarHeight',this.value)" onchange="savePrefs()"
+          onfocus="setEditing(true)" onblur="setEditing(false)">
+      </div>
     </div>
-    <div class="slider-pair">
-      <div class="slider-row"><label>Logo X <span class="v" id="vLogoX">0</span></label>
-        <input type="range" id="fLogoX" min="-500" max="500" value="0"
-          oninput="onSliderInput('logoX','vLogoX',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
-      <div class="slider-row"><label>Logo Y <span class="v" id="vLogoY">0</span></label>
-        <input type="range" id="fLogoY" min="-500" max="500" value="0"
-          oninput="onSliderInput('logoY','vLogoY',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+
+    <div class="sesuaikan-group" data-group="logo">
+      <div class="group-title">Logo</div>
+      <div class="slider-pair">
+        <div class="slider-row"><label>Logo X <span class="v" id="vLogoX">0</span></label>
+          <input type="range" id="fLogoX" min="-500" max="500" value="0"
+            oninput="onSliderInput('logoX','vLogoX',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+        <div class="slider-row"><label>Logo Y <span class="v" id="vLogoY">0</span></label>
+          <input type="range" id="fLogoY" min="-500" max="500" value="0"
+            oninput="onSliderInput('logoY','vLogoY',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      </div>
     </div>
-    <div class="slider-pair">
-      <div class="slider-row"><label>Perangkat X <span class="v" id="vDeviceX">0</span></label>
-        <input type="range" id="fDeviceX" min="-500" max="500" value="0"
-          oninput="onSliderInput('deviceX','vDeviceX',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
-      <div class="slider-row"><label>Perangkat Y <span class="v" id="vDeviceY">0</span></label>
-        <input type="range" id="fDeviceY" min="-500" max="500" value="0"
-          oninput="onSliderInput('deviceY','vDeviceY',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+
+    <div class="sesuaikan-group" data-group="device">
+      <div class="group-title">Detail Perangkat</div>
+      <div class="slider-pair">
+        <div class="slider-row"><label>Perangkat X <span class="v" id="vDeviceX">0</span></label>
+          <input type="range" id="fDeviceX" min="-500" max="500" value="0"
+            oninput="onSliderInput('deviceX','vDeviceX',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+        <div class="slider-row"><label>Perangkat Y <span class="v" id="vDeviceY">0</span></label>
+          <input type="range" id="fDeviceY" min="-500" max="500" value="0"
+            oninput="onSliderInput('deviceY','vDeviceY',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      </div>
     </div>
-    <div class="slider-pair">
-      <div class="slider-row"><label>Metadata X <span class="v" id="vMetaX">0</span></label>
-        <input type="range" id="fMetaX" min="-500" max="500" value="0"
-          oninput="onSliderInput('metaX','vMetaX',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
-      <div class="slider-row"><label>Metadata Y <span class="v" id="vMetaY">0</span></label>
-        <input type="range" id="fMetaY" min="-500" max="500" value="0"
-          oninput="onSliderInput('metaY','vMetaY',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+
+    <div class="sesuaikan-group" data-group="meta">
+      <div class="group-title">Metadata</div>
+      <div class="slider-pair">
+        <div class="slider-row"><label>Metadata X <span class="v" id="vMetaX">0</span></label>
+          <input type="range" id="fMetaX" min="-500" max="500" value="0"
+            oninput="onSliderInput('metaX','vMetaX',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+        <div class="slider-row"><label>Metadata Y <span class="v" id="vMetaY">0</span></label>
+          <input type="range" id="fMetaY" min="-500" max="500" value="0"
+            oninput="onSliderInput('metaY','vMetaY',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      </div>
     </div>
-    <div class="slider-pair">
-      <div class="slider-row"><label>Dokumentasi X <span class="v" id="vDocX">0</span></label>
-        <input type="range" id="fDocX" min="-500" max="500" value="0"
-          oninput="onSliderInput('docX','vDocX',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
-      <div class="slider-row"><label>Dokumentasi Y <span class="v" id="vDocY">0</span></label>
-        <input type="range" id="fDocY" min="-500" max="500" value="0"
-          oninput="onSliderInput('docY','vDocY',this.value)" onchange="savePrefs()"
-          onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+
+    <div class="sesuaikan-group" data-group="doc">
+      <div class="group-title">Dokumentasi</div>
+      <div class="slider-pair">
+        <div class="slider-row"><label>Dokumentasi X <span class="v" id="vDocX">0</span></label>
+          <input type="range" id="fDocX" min="-500" max="500" value="0"
+            oninput="onSliderInput('docX','vDocX',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+        <div class="slider-row"><label>Dokumentasi Y <span class="v" id="vDocY">0</span></label>
+          <input type="range" id="fDocY" min="-500" max="500" value="0"
+            oninput="onSliderInput('docY','vDocY',this.value)" onchange="savePrefs()"
+            onfocus="setEditing(true)" onblur="setEditing(false)"></div>
+      </div>
     </div>
-    <div class="modal-close" style="text-align:center; margin-top:2px;" onclick="resetLayout()">RESET LAYOUT</div>
+
+    <div class="modal-close" style="text-align:center; margin-top:2px;" onclick="resetLayout()" id="resetLayoutBtn">RESET LAYOUT</div>
   </div>
+
 
   <div class="section-label">
     <div class="t">Dokumentasi Lengkap</div>
@@ -751,34 +782,17 @@
     <div class="t">Resolusi Export</div>
   </div>
   <div class="fields">
-    <div style="font-family:'Inter',sans-serif; font-size:11px; color:var(--ivory-dim); margin:-6px 0 12px;">Pilih kualitas hasil export sesuai kebutuhan.</div>
-    <div class="res-options" id="resOptions">
-      <label class="res-opt active" data-val="original">
-        <input type="radio" name="exportRes" value="original" checked onchange="onResChange(this.value)">
-        <span class="ro-main"><span class="ro-title">Asli (Original)</span><span class="ro-badge">Default</span></span>
-        <span class="ro-desc">Resolusi asli foto tanpa perubahan</span>
-      </label>
-      <label class="res-opt" data-val="high">
-        <input type="radio" name="exportRes" value="high" onchange="onResChange(this.value)">
-        <span class="ro-main"><span class="ro-title">Tinggi (High)</span></span>
-        <span class="ro-desc">±80% dari resolusi asli</span>
-      </label>
-      <label class="res-opt" data-val="medium">
-        <input type="radio" name="exportRes" value="medium" onchange="onResChange(this.value)">
-        <span class="ro-main"><span class="ro-title">Sedang (Medium)</span></span>
-        <span class="ro-desc">±60% — cocok untuk medsos & WhatsApp</span>
-      </label>
-      <label class="res-opt" data-val="low">
-        <input type="radio" name="exportRes" value="low" onchange="onResChange(this.value)">
-        <span class="ro-main"><span class="ro-title">Rendah (Low)</span></span>
-        <span class="ro-desc">±40% — ukuran file jauh lebih kecil</span>
-      </label>
-      <label class="res-opt" data-val="custom">
-        <input type="radio" name="exportRes" value="custom" onchange="onResChange(this.value)">
-        <span class="ro-main"><span class="ro-title">Kustom (Custom)</span></span>
-        <span class="ro-desc">Tentukan sendiri lebar &amp; tinggi</span>
-      </label>
+    <div class="field">
+      <label>Resolusi</label>
+      <select id="fResSelect" onchange="onResChange(this.value)">
+        <option value="original" selected>Asli (Original) — Default</option>
+        <option value="high">Tinggi (High)</option>
+        <option value="medium">Sedang (Medium)</option>
+        <option value="low">Rendah (Low)</option>
+        <option value="custom">Kustom (Custom)</option>
+      </select>
     </div>
+    <div class="res-desc" id="resDesc">Menggunakan resolusi asli foto tanpa perubahan.</div>
 
     <div id="customResFields" style="display:none; margin-top:10px;">
       <div class="field-row">
@@ -790,24 +804,11 @@
       </label>
     </div>
 
-    <div class="section-label" style="padding:16px 0 8px;"><div class="t">Kualitas Export</div></div>
-    <div class="slider-row">
-      <label>Kualitas <span class="v" id="vQuality">100</span>%</label>
-      <input type="range" id="fQuality" min="10" max="100" value="100"
-        oninput="onQualityInput(this.value)" onchange="savePrefs()">
-    </div>
-
-    <div class="section-label" style="padding:10px 0 8px;"><div class="t">Format Export</div></div>
-    <div class="templates" id="formatOptions" style="padding-left:2px; padding-right:2px;">
-      <div class="tchip active" data-format="png" onclick="selectFormat('png')">
-        <div class="swatch" style="font-size:11px;">PNG</div><div class="label">PNG</div>
-      </div>
-      <div class="tchip" data-format="jpg" onclick="selectFormat('jpg')">
-        <div class="swatch" style="font-size:11px;">JPG</div><div class="label">JPG</div>
-      </div>
-      <div class="tchip" data-format="webp" onclick="selectFormat('webp')">
-        <div class="swatch" style="font-size:10px;">WEBP</div><div class="label">WEBP</div>
-      </div>
+    <div class="section-label" style="padding:16px 0 8px;"><div class="t">Format Export</div></div>
+    <div class="format-row" id="formatOptions">
+      <button type="button" class="format-btn active" data-format="png" onclick="selectFormat('png')">PNG</button>
+      <button type="button" class="format-btn" data-format="jpg" onclick="selectFormat('jpg')">JPG</button>
+      <button type="button" class="format-btn" data-format="webp" onclick="selectFormat('webp')">WEBP</button>
     </div>
 
     <div class="export-estimate">
@@ -843,6 +844,20 @@
 </div>
 
 <script>
+const DEFAULT_LAYOUTS = {
+  whitebar: { barHeight:100, logoX:0, logoY:0, deviceX:0, deviceY:0, metaX:0, metaY:0, docX:0, docY:0 },
+  minimal:  { logoX:0, logoY:0, deviceX:0, deviceY:0, docX:0, docY:0 },
+  exif:     { barHeight:160, logoX:0, logoY:0, deviceX:0, deviceY:0, metaX:0, metaY:0, docX:0, docY:0 },
+  full:     { barHeight:120, logoX:0, logoY:0, deviceX:0, deviceY:0, metaX:0, metaY:0, docX:0, docY:0 }
+};
+const TEMPLATE_LABELS = { whitebar:'White Bar', minimal:'Minimal', exif:'Pro EXIF', full:'Full Info' };
+const GROUP_MAP = {
+  whitebar: ['layout','logo','device','meta','doc'],
+  minimal: ['logo','device','doc'],
+  exif: ['layout','logo','device','meta','doc'],
+  full: ['layout','logo','device','meta','doc']
+};
+
 const state = {
   template: 'whitebar',
   brand: 'Atelier',
@@ -859,12 +874,9 @@ const state = {
   showLocationField: true,
   showDateTime: true,
   showMeta: true,
-  barHeight: 120,
-  logoX: 0, logoY: 0,
-  deviceX: 0, deviceY: 0,
-  metaX: 0, metaY: 0,
-  docX: 0, docY: 0,
+  layouts: JSON.parse(JSON.stringify(DEFAULT_LAYOUTS)),
   _layoutEditing: false,
+  _sesuaikanOpen: false,
   exportResolution: 'original',
   exportCustomW: 1080, exportCustomH: 1350,
   exportFormat: 'png',
@@ -943,6 +955,12 @@ function drawLogoCircle(cx, cy, r){
   return true;
 }
 
+function clampToBar(x,y,boxW,boxH,barY,barH,innerPad,w){
+  const minX = innerPad, maxX = Math.max(minX, w-innerPad-boxW);
+  const minY = barY+innerPad, maxY = Math.max(minY, barY+barH-innerPad-boxH);
+  return { x: Math.max(minX, Math.min(maxX, x)), y: Math.max(minY, Math.min(maxY, y)) };
+}
+
 function anchorX(w,pad){
   if (state.position.endsWith('right')) return w - pad;
   if (state.position.endsWith('center')) return w/2;
@@ -986,60 +1004,87 @@ function drawWatermark(w,h){
   ctx.textAlign = align;
 
   if (state.template === 'whitebar'){
-    const barH = h*0.16;
+    const REF = 1080;
+    const scale = w / REF;
+    const cfg = state.layouts.whitebar;
+    const barH = Math.max(40, Math.min(350, cfg.barHeight)) * scale;
     const barY = top ? 0 : h-barH;
     const pal = barPalette(state.barColor);
     drawBarBg(w, barY, barH, top, pal);
     if (pal.shadow) applyShadow();
+    const innerPad = Math.max(pad*0.5, barH*0.1);
 
     const cy = barY + barH/2;
-    const padX = w*0.045;
-    const logoSize = barH*0.5;
-    const headX = rightSide ? w-padX-logoSize : padX;
-    const specX = rightSide ? padX : w-padX;
+    const lr = barH*0.28;
+    const logoDefaultX = rightSide ? w-innerPad-lr*2 : innerPad;
+    const logoP = clampToBar(logoDefaultX + cfg.logoX*scale, cy-lr + cfg.logoY*scale, lr*2, lr*2, barY, barH, innerPad, w);
+    const logoCx = logoP.x+lr, logoCy = logoP.y+lr;
 
     if (state.showDevice){
-      if (!drawLogoCircle(headX+logoSize/2, cy, logoSize/2)){
+      if (!drawLogoCircle(logoCx, logoCy, lr)){
         ctx.fillStyle = pal.primary;
-        ctx.font = '600 ' + logoSize*0.75 + 'px Fraunces, serif';
+        ctx.font = '600 ' + (lr*1.5) + 'px Fraunces, serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(state.brand.charAt(0), headX+logoSize/2, cy);
+        ctx.fillText(state.brand.charAt(0), logoCx, logoCy);
         ctx.textBaseline = 'alphabetic';
       }
+    }
+
+    const devBoxW = w*0.36, devBoxH = barH*0.5;
+    const devDefaultX = rightSide ? logoP.x - devBoxW - innerPad*0.6 : logoP.x + lr*2 + innerPad*0.6;
+    const devP = clampToBar(devDefaultX + cfg.deviceX*scale, cy-devBoxH/2 + cfg.deviceY*scale, devBoxW, devBoxH, barY, barH, innerPad, w);
+    if (state.showDevice){
+      ctx.textAlign = rightSide ? 'right' : 'left';
+      const tx = rightSide ? devP.x+devBoxW : devP.x;
       ctx.fillStyle = pal.primary;
       ctx.font = '600 ' + (w*0.034) + 'px Fraunces, serif';
-      ctx.textAlign = rightSide ? 'right' : 'left';
-      const headTx = rightSide ? headX-w*0.025 : headX+logoSize+w*0.025;
-      ctx.fillText(state.brand, headTx, cy-barH*0.08);
+      ctx.fillText(state.brand, tx, devP.y+devBoxH*0.36);
       ctx.fillStyle = pal.secondary;
       ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
-      ctx.fillText(state.device, headTx, cy+barH*0.2);
+      ctx.fillText(state.device, tx, devP.y+devBoxH*0.75);
     }
 
-    if (pal.divider){
-      ctx.strokeStyle = pal.divider;
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(w*0.56,cy-barH*0.28); ctx.lineTo(w*0.56,cy+barH*0.28); ctx.stroke();
-    }
-
-    ctx.textAlign = rightSide ? 'left' : 'right';
-    ctx.fillStyle = pal.secondary;
-    ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+    const metaBoxW = w*0.4, metaBoxH = barH*0.3;
+    const metaDefaultX = rightSide ? innerPad : w-innerPad-metaBoxW;
+    const metaP = clampToBar(metaDefaultX + cfg.metaX*scale, barY+barH*0.18 + cfg.metaY*scale, metaBoxW, metaBoxH, barY, barH, innerPad, w);
     if (state.showMeta){
-      ctx.fillText(state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso, specX, cy-barH*0.06);
+      ctx.textAlign = rightSide ? 'left' : 'right';
+      const mx = rightSide ? metaP.x : metaP.x+metaBoxW;
+      ctx.fillStyle = pal.secondary;
+      ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText(state.mm+'mm  f/'+state.f+'  '+state.s+'s  ISO'+state.iso, mx, metaP.y+metaBoxH*0.5);
     }
+
+    const docBoxW = w*0.4, docBoxH = barH*0.3;
+    const docDefaultX = rightSide ? innerPad : w-innerPad-docBoxW;
+    const docP = clampToBar(docDefaultX + cfg.docX*scale, barY+barH*0.62 + cfg.docY*scale, docBoxW, docBoxH, barY, barH, innerPad, w);
     const lb = [state.showLocationField && state.location, state.showDateTime && state.dateTime].filter(Boolean).join('  ·  ');
     if (lb){
-      ctx.fillText(lb, specX, cy+barH*0.22);
+      ctx.textAlign = rightSide ? 'left' : 'right';
+      const dx = rightSide ? docP.x : docP.x+docBoxW;
+      ctx.fillStyle = pal.secondary;
+      ctx.font = (w*0.021) + 'px "IBM Plex Mono", monospace';
+      ctx.fillText(lb, dx, docP.y+docBoxH*0.5);
     }
+
     clearShadow();
+    if (state._layoutEditing && !isExporting){
+      ctx.save(); ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(199,166,97,0.9)'; ctx.lineWidth=1;
+      ctx.strokeRect(0.5, barY+0.5, w-1, barH-1);
+      ctx.strokeRect(logoP.x+0.5, logoP.y+0.5, lr*2-1, lr*2-1);
+      ctx.strokeRect(devP.x+0.5, devP.y+0.5, devBoxW-1, devBoxH-1);
+      ctx.strokeRect(metaP.x+0.5, metaP.y+0.5, metaBoxW-1, metaBoxH-1);
+      ctx.strokeRect(docP.x+0.5, docP.y+0.5, docBoxW-1, docBoxH-1);
+      ctx.restore();
+    }
     return;
   }
 
   if (state.template === 'full'){
     const REF = 1080;
     const scale = w / REF;
-    const barH = Math.max(40, Math.min(350, state.barHeight)) * scale;
+    const cfg = state.layouts.full;
+    const barH = Math.max(40, Math.min(350, cfg.barHeight)) * scale;
     const barY = top ? 0 : h - barH;
     const pal = barPalette(state.barColor);
     drawBarBg(w, barY, barH, top, pal);
@@ -1274,29 +1319,50 @@ function selectTemplate(key){
   document.querySelectorAll('#templateList .tchip[data-key]').forEach(el=>{
     el.classList.toggle('active', el.dataset.key === key);
   });
-  const showSesuaikan = key === 'full';
-  document.getElementById('sesuaikanLabel').style.display = showSesuaikan ? 'flex' : 'none';
-  document.getElementById('sesuaikanFields').style.display = showSesuaikan ? 'block' : 'none';
+  if (state._sesuaikanOpen) refreshSesuaikanSliders();
   render();
   savePrefs();
 }
 
-function resetLayout(){
-  state.barHeight = 120; state.logoX = 0; state.logoY = 0;
-  state.deviceX = 0; state.deviceY = 0;
-  state.metaX = 0; state.metaY = 0;
-  state.docX = 0; state.docY = 0;
-  ['BarHeight','LogoX','LogoY','DeviceX','DeviceY','MetaX','MetaY','DocX','DocY'].forEach(function(k){
-    const key = k.charAt(0).toLowerCase()+k.slice(1);
-    document.getElementById('f'+k).value = state[key];
-    document.getElementById('v'+k).textContent = state[key];
+function toggleSesuaikan(){
+  state._sesuaikanOpen = !state._sesuaikanOpen;
+  document.getElementById('chipSesuaikan').classList.toggle('active', state._sesuaikanOpen);
+  document.getElementById('sesuaikanLabel').style.display = state._sesuaikanOpen ? 'flex' : 'none';
+  document.getElementById('sesuaikanFields').style.display = state._sesuaikanOpen ? 'block' : 'none';
+  if (state._sesuaikanOpen) refreshSesuaikanSliders();
+}
+
+function showRelevantGroups(){
+  const groups = GROUP_MAP[state.template] || [];
+  document.querySelectorAll('.sesuaikan-group').forEach(function(el){
+    el.style.display = groups.includes(el.dataset.group) ? 'block' : 'none';
   });
+}
+
+function refreshSesuaikanSliders(){
+  const cfg = state.layouts[state.template];
+  const fields = [['barHeight','fBarHeight','vBarHeight',120],['logoX','fLogoX','vLogoX',0],['logoY','fLogoY','vLogoY',0],
+    ['deviceX','fDeviceX','vDeviceX',0],['deviceY','fDeviceY','vDeviceY',0],
+    ['metaX','fMetaX','vMetaX',0],['metaY','fMetaY','vMetaY',0],['docX','fDocX','vDocX',0],['docY','fDocY','vDocY',0]];
+  fields.forEach(function(f){
+    const val = cfg[f[0]] !== undefined ? cfg[f[0]] : f[3];
+    document.getElementById(f[1]).value = val;
+    document.getElementById(f[2]).textContent = val;
+  });
+  document.getElementById('sesuaikanTplName').textContent = TEMPLATE_LABELS[state.template] || state.template;
+  document.getElementById('resetLayoutBtn').textContent = 'RESET LAYOUT (' + (TEMPLATE_LABELS[state.template]||'').toUpperCase() + ')';
+  showRelevantGroups();
+}
+
+function resetLayout(){
+  state.layouts[state.template] = JSON.parse(JSON.stringify(DEFAULT_LAYOUTS[state.template]));
+  refreshSesuaikanSliders();
   render();
   savePrefs();
 }
 
 function onSliderInput(key, valId, val){
-  state[key] = parseInt(val, 10);
+  state.layouts[state.template][key] = parseInt(val, 10);
   document.getElementById(valId).textContent = val;
   render();
 }
@@ -1402,11 +1468,17 @@ function updateEstimate(){
   document.getElementById('estSize').textContent = formatBytes(estimateFileSize(dims.w, dims.h, state.exportFormat, state.exportQuality));
 }
 
+const resDescriptions = {
+  original: 'Menggunakan resolusi asli foto tanpa perubahan.',
+  high: '±80% dari resolusi asli.',
+  medium: '±60%, cocok untuk media sosial & WhatsApp.',
+  low: '±40%, ukuran file lebih kecil.',
+  custom: 'Atur sendiri lebar dan tinggi output.'
+};
+
 function onResChange(val){
   state.exportResolution = val;
-  document.querySelectorAll('.res-opt').forEach(function(el){
-    el.classList.toggle('active', el.dataset.val === val);
-  });
+  document.getElementById('resDesc').textContent = resDescriptions[val] || '';
   document.getElementById('customResFields').style.display = val === 'custom' ? 'block' : 'none';
   if (val === 'custom'){
     const baseW = state.img ? state.img.width : 1080;
@@ -1436,21 +1508,13 @@ function onCustomResInput(dim){
   savePrefs();
 }
 
-function onQualityInput(val){
-  state.exportQuality = parseInt(val, 10);
-  document.getElementById('vQuality').textContent = val;
-  updateEstimate();
-}
-
 function selectFormat(fmt){
   state.exportFormat = fmt;
-  document.querySelectorAll('#formatOptions .tchip[data-format]').forEach(function(el){
+  document.querySelectorAll('#formatOptions .format-btn[data-format]').forEach(function(el){
     el.classList.toggle('active', el.dataset.format === fmt);
   });
   const defaults = {png:100, jpg:95, webp:90};
   state.exportQuality = defaults[fmt];
-  document.getElementById('fQuality').value = state.exportQuality;
-  document.getElementById('vQuality').textContent = state.exportQuality;
   updateEstimate();
   savePrefs();
 }
@@ -1512,11 +1576,7 @@ async function savePrefs(){
       device: state.device, barColor: state.barColor, showDevice: state.showDevice,
       mm: state.mm, f: state.f, s: state.s, iso: state.iso,
       dateTime: state.dateTime,
-      barHeight: state.barHeight,
-      logoX: state.logoX, logoY: state.logoY,
-      deviceX: state.deviceX, deviceY: state.deviceY,
-      metaX: state.metaX, metaY: state.metaY,
-      docX: state.docX, docY: state.docY,
+      layouts: state.layouts,
       exportResolution: state.exportResolution,
       exportCustomW: state.exportCustomW, exportCustomH: state.exportCustomH,
       exportFormat: state.exportFormat, exportQuality: state.exportQuality,
@@ -1549,26 +1609,17 @@ async function loadPrefs(){
     document.getElementById('fF').value = state.f;
     document.getElementById('fS').value = state.s;
     document.getElementById('fISO').value = state.iso;
-    document.getElementById('fBarHeight').value = state.barHeight;
-    document.getElementById('vBarHeight').textContent = state.barHeight;
-    document.getElementById('fLogoX').value = state.logoX; document.getElementById('vLogoX').textContent = state.logoX;
-    document.getElementById('fLogoY').value = state.logoY; document.getElementById('vLogoY').textContent = state.logoY;
-    document.getElementById('fDeviceX').value = state.deviceX; document.getElementById('vDeviceX').textContent = state.deviceX;
-    document.getElementById('fDeviceY').value = state.deviceY; document.getElementById('vDeviceY').textContent = state.deviceY;
-    document.getElementById('fMetaX').value = state.metaX; document.getElementById('vMetaX').textContent = state.metaX;
-    document.getElementById('fMetaY').value = state.metaY; document.getElementById('vMetaY').textContent = state.metaY;
-    document.getElementById('fDocX').value = state.docX; document.getElementById('vDocX').textContent = state.docX;
-    document.getElementById('fDocY').value = state.docY; document.getElementById('vDocY').textContent = state.docY;
-    document.querySelectorAll('.res-opt').forEach(function(el){
-      el.classList.toggle('active', el.dataset.val === state.exportResolution);
-      const r = el.querySelector('input[type=radio]'); if (r) r.checked = (el.dataset.val === state.exportResolution);
-    });
+    if (p.layouts){
+      Object.keys(DEFAULT_LAYOUTS).forEach(function(t){
+        state.layouts[t] = Object.assign({}, DEFAULT_LAYOUTS[t], p.layouts[t]||{});
+      });
+    }
+    document.getElementById('fResSelect').value = state.exportResolution;
+    document.getElementById('resDesc').textContent = resDescriptions[state.exportResolution] || '';
     document.getElementById('customResFields').style.display = state.exportResolution === 'custom' ? 'block' : 'none';
     document.getElementById('fCustomW').value = state.exportCustomW;
     document.getElementById('fCustomH').value = state.exportCustomH;
-    document.getElementById('fQuality').value = state.exportQuality;
-    document.getElementById('vQuality').textContent = state.exportQuality;
-    document.querySelectorAll('#formatOptions .tchip[data-format]').forEach(function(el){
+    document.querySelectorAll('#formatOptions .format-btn[data-format]').forEach(function(el){
       el.classList.toggle('active', el.dataset.format === state.exportFormat);
     });
     document.getElementById('fCameraModel').value = state.cameraModel;
